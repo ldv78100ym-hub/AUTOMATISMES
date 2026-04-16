@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QCM : Proportions et pourcentages</title>
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #fff;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Accessibilité : Malvoyants */
+        body.mal-voyant {
+            --bg-color: #000;
+            --text-color: #fff;
+            --card-bg: #111;
+            --primary: #fff;
+            --secondary: #ffeb3b;
+            font-size: 140%;
+            font-weight: bold;
+        }
+        body.mal-voyant button, body.mal-voyant input, body.mal-voyant select {
+            border: 2px solid #fff;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Accessibilité : Mal Dys */
+        body.mal-dys {
+            font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+            letter-spacing: 0.15em;
+            word-spacing: 0.3em;
+            line-height: 1.8;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary);
+            color: #fff;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+
+        .btn-copyright { background-color: var(--primary); }
+        .btn-copyright:hover { background-color: #1a252f; }
+        .btn-pdf { background-color: #8e44ad; }
+        .btn-pdf:hover { background-color: #732d91; }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .text-center { text-align: center; }
+        
+        input[type="number"], select {
+            padding: 10px;
+            font-size: 1.1rem;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .slide { display: none; }
+        .slide.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timer-display {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .options-list { list-style-type: none; padding: 0; }
+        .options-list li { margin-bottom: 15px; }
+
+        .options-list label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            transition: background 0.2s;
+        }
+
+        .options-list label:hover {
+            background-color: #e0f7fa;
+            color: #000;
+        }
+
+        .options-list input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .result-panel { display: none; text-align: center; }
+        .correct { color: var(--success) !important; font-weight: bold; border-color: var(--success) !important; }
+        .incorrect { color: var(--accent) !important; text-decoration: line-through; border-color: var(--accent) !important; }
+
+        /* Popup Droits d'auteur */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            background: transparent;
+            color: var(--accent);
+            font-size: 1.5rem;
+            padding: 0;
+            border: none;
+        }
+
+        /* Impression PDF */
+        #print-area { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                display: block;
+                position: absolute;
+                left: 0; top: 0; width: 100%;
+                color: #000;
+                background: #fff;
+            }
+            .print-question { margin-bottom: 30px; page-break-inside: avoid; }
+            .print-options { list-style-type: none; padding-left: 0; }
+            .print-options li { margin-bottom: 5px; }
+            .print-correct-answer { font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <button onclick="document.body.classList.toggle('mal-voyant')">👁️ Mode Malvoyant</button>
+        <button onclick="document.body.classList.toggle('mal-dys')">📝 Mode Dys</button>
+        <button class="btn-copyright" onclick="document.getElementById('copyright-modal').style.display='flex'">© Droits d'auteur</button>
+    </div>
+
+    <div id="copyright-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="document.getElementById('copyright-modal').style.display='none'">&times;</button>
+            <h3>⚖️ Droits d'Auteur et Licence d'Utilisation</h3>
+            <p><strong>Auteur :</strong> Yann Merdy (yann.merdy@gmail.com) - Avril 2026</p>
+            <p><strong>Licence d'Utilisation Non Commerciale</strong><br>
+            Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application ('Proportions et pourcentages') sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
+            <p><strong>Conditions :</strong><br>
+            <em>Utilisation Privée et Éducative (Autorisée) :</em> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu uniquement à des fins personnelles, éducatives et non lucratives.<br>
+            <em>Utilisation Commerciale (Interdite) :</em> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins commerciales, lucratives ou professionnelles est strictement interdite sans un accord écrit préalable et explicite de l'auteur.</p>
+            <p><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</p>
+            <p>Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
+        </div>
+    </div>
+
+    <div id="setup-screen" class="quiz-container text-center">
+        <h2>Paramétrage du QCM</h2>
+        
+        <div class="form-group">
+            <label for="num-questions">Nombre de questions :</label>
+            <input type="number" id="num-questions" min="1" max="100" value="5">
+        </div>
+
+        <div class="form-group">
+            <label for="timing-mode">Mode de passage :</label>
+            <select id="timing-mode">
+                <option value="0">Manuel (L'enseignant passe les diapos)</option>
+                <option value="30">Minuté : 30 secondes par question</option>
+                <option value="45">Minuté : 45 secondes par question</option>
+                <option value="60">Minuté : 60 secondes par question</option>
+            </select>
+        </div>
+
+        <br>
+        <button onclick="startQuiz()">Générer et Démarrer l'animation HTML</button>
+        <br><br>
+        <button class="btn-pdf" onclick="generateAndPrintPDF()">🖨️ Générer PDF (Sujet + Correction)</button>
+    </div>
+
+    <div id="quiz-main" class="quiz-container" style="display:none;">
+        <div id="slides-container"></div>
+
+        <div class="navigation">
+            <button id="prev-btn" onclick="changeSlide(-1)" style="display:none;">Précédent</button>
+            <button id="next-btn" onclick="changeSlide(1)">Suivant</button>
+            <button id="submit-btn" onclick="showResults()" style="display:none; background-color: var(--success);">Valider</button>
+        </div>
+
+        <div id="result-panel" class="result-panel">
+            <h2>Résultats</h2>
+            <p id="score-text"></p>
+            <button onclick="returnToSetup()">Générer un nouveau QCM</button>
+            <button class="btn-pdf" onclick="window.print()">🖨️ Imprimer la correction</button>
+        </div>
+    </div>
+
+    <div id="print-area"></div>
+
+    <script>
+        // Utilitaires mathématiques
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        function formatNumber(num) {
+            if (Number.isInteger(num)) return num.toString();
+            return parseFloat(num.toFixed(4)).toString().replace('.', ',');
+        }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        // Sécurise la génération de fausses réponses uniques
+        function getSafeWrongs(ansStr, rawWrongsArr, suffix = "") {
+            let unique = [];
+            for (let val of rawWrongsArr) {
+                let str = (typeof val === 'number') ? formatNumber(val) + suffix : val + suffix;
+                if (str !== ansStr && !unique.includes(str)) {
+                    unique.push(str);
+                }
+            }
+            let offset = 1;
+            while (unique.length < 4) {
+                let baseNum = parseFloat(ansStr.toString().replace(suffix, '').replace(',', '.'));
+                let fakeStr = formatNumber(isNaN(baseNum) ? offset * 2.5 : baseNum + offset * 1.5) + suffix;
+                if (fakeStr !== ansStr && !unique.includes(fakeStr)) {
+                    unique.push(fakeStr);
+                }
+                offset++;
+            }
+            return unique.slice(0, 4);
+        }
+
+        let currentSlide = 0;
+        let questions = [];
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let timingModeValue = 0;
+
+        const generators = [
+            function() {
+                let den = randInt(2, 20) * 5; 
+                let num = randInt(1, den - 1);
+                let ans = (num / den) * 100;
+                let ansStr = formatNumber(ans) + "%";
+                let wrongs = getSafeWrongs(ansStr, [ans + randInt(1, 5), ans - randInt(1, 5), (num/(den+10))*100, num*100, ans*10], "%");
+                return { text: `Dans un lycée de ${den} élèves, ${num} étudient l'espagnol. Quel est le pourcentage d'élèves étudiant l'espagnol ?`, ansStr, wrongs };
+            },
+            function() {
+                let total = randInt(10, 50) * 10;
+                let pct = randInt(5, 95);
+                let ans = (total * pct) / 100;
+                let ansStr = formatNumber(ans) + " euros";
+                let wrongs = getSafeWrongs(ansStr, [ans + 5, ans - 5, total - ans, ans * 1.2, total + ans], " euros");
+                return { text: `Un article coûte ${total} euros. Son prix diminue de ${pct}%. Quel est le montant de la réduction ?`, ansStr, wrongs };
+            },
+            function() {
+                let p1 = randInt(20, 80);
+                let p2 = randInt(10, 90);
+                let ans = (p1 * p2) / 100;
+                let ansStr = formatNumber(ans) + "%";
+                let wrongs = getSafeWrongs(ansStr, [p1 + p2, Math.abs(p1 - p2), (p1 * p2) / 10, ans + 2.5, p1 * p2], "%");
+                return { text: `Dans un groupe, ${p1}% sont des cadres. Parmi eux, ${p2}% sont des femmes. Quelle est la proportion de femmes cadres dans le groupe total ?`, ansStr, wrongs };
+            },
+            function() {
+                let pct = randInt(5, 95);
+                let div = gcd(pct, 100);
+                let num = pct / div;
+                let den = 100 / div;
+                let ansStr = `$\\dfrac{${num}}{${den}}$`;
+                let wrongs = getSafeWrongs(ansStr, [`$\\dfrac{${num+1}}{${den}}$`, `$\\dfrac{${pct}}{100}$`, `$\\dfrac{${num}}{${den+1}}$`, `$\\dfrac{${den}}{${num}}$`, `$\\dfrac{${num+2}}{${den+2}}$`]);
+                return { text: `Exprimer la proportion ${pct}% sous la forme d'une fraction irréductible.`, ansStr, wrongs };
+            },
+            function() {
+                let val = randInt(1, 999);
+                let dec = val / 1000;
+                let pct = dec * 100;
+                let ansStr = formatNumber(pct) + "%";
+                let wrongs = getSafeWrongs(ansStr, [pct * 10, pct / 10, pct + 1, pct - 1, dec], "%");
+                return { text: `Exprimer la proportion ${formatNumber(dec)} en pourcentage.`, ansStr, wrongs };
+            },
+            function() {
+                let t = randInt(-80, 150);
+                while (t === 0) t = randInt(-80, 150);
+                let Vd = randInt(10, 500);
+                let CM = 1 + t / 100;
+                let Vf = Vd * CM;
+                
+                let type = randInt(0, 3);
+                let text = "", ansStr = "", wrongs = [];
+
+                if (type === 0) {
+                    text = `Sachant que $V_f = \\left(1 + \\dfrac{t}{100}\\right) \\times V_d$, calculer la valeur finale $V_f$ pour $V_d = ${Vd}$ et $t = ${t}$.`;
+                    ansStr = formatNumber(Vf);
+                    wrongs = getSafeWrongs(ansStr, [Vd * (1 - t/100), Vd + t, Vd / CM, Vd * (t/100), Vd - t]);
+                } else if (type === 1) {
+                    text = `Sachant que $V_f = \\left(1 + \\dfrac{t}{100}\\right) \\times V_d$, déterminer le taux d'évolution $t$ pour $V_d = ${Vd}$ et $V_f = ${formatNumber(Vf)}$.`;
+                    ansStr = formatNumber(t);
+                    wrongs = getSafeWrongs(ansStr, [-t, ((Vd/Vf) - 1)*100, Vf - Vd, (Vf/Vd)*100, t + 10]);
+                } else if (type === 2) {
+                    text = `Sachant que $V_f = \\left(1 + \\dfrac{t}{100}\\right) \\times V_d$, calculer la valeur initiale $V_d$ pour $V_f = ${formatNumber(Vf)}$ et $t = ${t}$.`;
+                    ansStr = formatNumber(Vd);
+                    wrongs = getSafeWrongs(ansStr, [Vf * CM, Vf - t, Vf / (1 - t/100), Vf * (1 - t/100), Vf + t]);
+                } else {
+                    text = `Sachant que $V_f = \\left(1 + \\dfrac{t}{100}\\right) \\times V_d$, quel est le coefficient multiplicateur $\\left(1 + \\dfrac{t}{100}\\right)$ si $t = ${t}$ ?`;
+                    ansStr = formatNumber(CM);
+                    wrongs = getSafeWrongs(ansStr, [1 - t/100, t/100, 1 + t, 100 + t, -t/100]);
+                }
+                return { text, ansStr, wrongs };
+            }
+        ];
+
+        function generateQuestions(numQuestions) {
+            questions = [];
+            let generatedTexts = new Set(); // Pour garantir l'unicité des questions
+            
+            // Répartition équitable des bonnes réponses (A=0, B=1, C=2, D=3, Autre=4)
+            let correctPositions = [];
+            for (let i = 0; i < numQuestions; i++) {
+                correctPositions.push(i % 5);
+            }
+            correctPositions.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < numQuestions; i++) {
+                let genData;
+                let isUnique = false;
+                let safeguard = 0;
+
+                // Forcer l'unicité
+                while (!isUnique && safeguard < 200) {
+                    genData = generators[randInt(0, generators.length - 1)]();
+                    if (!generatedTexts.has(genData.text)) {
+                        generatedTexts.add(genData.text);
+                        isUnique = true;
+                    }
+                    safeguard++;
+                }
+
+                let targetPos = correctPositions[i];
+                questions.push(buildSlideData(genData.text, genData.ansStr, genData.wrongs, targetPos));
+            }
+        }
+
+        function buildSlideData(text, correctStr, wrongArr, targetPos) {
+            let letters = ['A', 'B', 'C', 'D'];
+            let optionsObj = [];
+            let shuffledWrongs = wrongArr.sort(() => Math.random() - 0.5);
+
+            if (targetPos === 4) {
+                for (let i = 0; i < 4; i++) {
+                    optionsObj.push({ label: letters[i], text: shuffledWrongs[i], isCorrect: false });
+                }
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: true, hiddenCorrectStr: correctStr });
+            } else {
+                let currentWrongs = 0;
+                for (let i = 0; i < 4; i++) {
+                    if (i === targetPos) {
+                        optionsObj.push({ label: letters[i], text: correctStr, isCorrect: true });
+                    } else {
+                        optionsObj.push({ label: letters[i], text: shuffledWrongs[currentWrongs], isCorrect: false });
+                        currentWrongs++;
+                    }
+                }
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: false });
+            }
+
+            return { question: text, options: optionsObj };
+        }
+
+        function startQuiz() {
+            let numInput = parseInt(document.getElementById('num-questions').value);
+            if (isNaN(numInput) || numInput < 1) numInput = 5;
+            
+            timingModeValue = parseInt(document.getElementById('timing-mode').value);
+
+            generateQuestions(numInput);
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('quiz-main').style.display = 'block';
+            
+            renderSlides();
+            currentSlide = 0;
+            updateNavigation();
+            startTimerIfNeeded();
+        }
+
+        function returnToSetup() {
+            clearInterval(timerInterval);
+            document.getElementById('setup-screen').style.display = 'block';
+            document.getElementById('quiz-main').style.display = 'none';
+            document.getElementById('result-panel').style.display = 'none';
+        }
+
+        function renderSlides() {
+            const container = document.getElementById('slides-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                let div = document.createElement('div');
+                div.className = `slide ${index === 0 ? 'active' : ''}`;
+                div.id = `slide-${index}`;
+
+                let timerHtml = timingModeValue > 0 ? `<span class="timer-display" id="timer-${index}"></span>` : '';
+                
+                let html = `<div class="question-title">
+                                <span>Question ${index + 1} / ${questions.length}</span>
+                                ${timerHtml}
+                            </div>`;
+                html += `<p>${q.question}</p><ul class="options-list">`;
+
+                q.options.forEach((opt, oIndex) => {
+                    html += `
+                        <li>
+                            <label id="label-${index}-${oIndex}">
+                                <input type="radio" name="q${index}" value="${opt.isCorrect}">
+                                <strong>${opt.label}.</strong>&nbsp; ${opt.text}
+                            </label>
+                        </li>
+                    `;
+                });
+
+                html += `</ul>`;
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function startTimerIfNeeded() {
+            clearInterval(timerInterval);
+            if (timingModeValue > 0) {
+                timeRemaining = timingModeValue;
+                updateTimerUI();
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerUI();
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        if (currentSlide < questions.length - 1) {
+                            changeSlide(1);
+                        } else {
+                            showResults();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateTimerUI() {
+            let timerEl = document.getElementById(`timer-${currentSlide}`);
+            if (timerEl) {
+                timerEl.innerHTML = `⏱️ ${timeRemaining}s`;
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prev-btn').style.display = (currentSlide === 0 || timingModeValue > 0) ? 'none' : 'inline-block';
+            
+            if (currentSlide === questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('submit-btn').style.display = 'inline-block';
+            } else {
+                document.getElementById('next-btn').style.display = timingModeValue > 0 ? 'none' : 'inline-block';
+                document.getElementById('submit-btn').style.display = 'none';
+            }
+        }
+
+        function changeSlide(direction) {
+            document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+            currentSlide += direction;
+            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+            updateNavigation();
+            startTimerIfNeeded();
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            let score = 0;
+            questions.forEach((q, index) => {
+                let selected = document.querySelector(`input[name="q${index}"]:checked`);
+                
+                q.options.forEach((opt, oIndex) => {
+                    let labelEl = document.getElementById(`label-${index}-${oIndex}`);
+                    if (opt.isCorrect) {
+                        labelEl.classList.add('correct');
+                        if(opt.label === 'E' && opt.hiddenCorrectStr) {
+                            labelEl.innerHTML += ` <span style="color:var(--primary); font-size:0.9em;">(C'était : ${opt.hiddenCorrectStr})</span>`;
+                        }
+                    } else if (selected && selected.parentNode === labelEl && !opt.isCorrect) {
+                        labelEl.classList.add('incorrect');
+                    }
+                });
+
+                if (selected && selected.value === "true") score++;
+            });
+
+            document.querySelectorAll('.slide').forEach(s => s.classList.add('active'));
+            document.querySelector('.navigation').style.display = 'none';
+            
+            let resultPanel = document.getElementById('result-panel');
+            resultPanel.style.display = 'block';
+            document.getElementById('score-text').innerHTML = `Votre score est de <strong>${score} / ${questions.length}</strong>.`;
+            
+            // Masquer les chronos
+            document.querySelectorAll('.timer-display').forEach(el => el.style.display = 'none');
+            
+            if (window.MathJax) MathJax.typesetPromise();
+            buildPrintArea();
+        }
+
+        // --- GESTION DE L'IMPRESSION PDF ---
+        function generateAndPrintPDF() {
+            let numInput = parseInt(document.getElementById('num-questions').value);
+            if (isNaN(numInput) || numInput < 1) numInput = 5;
+            
+            generateQuestions(numInput);
+            buildPrintArea();
+            
+            // Attendre le rendu MathJax avant d'imprimer
+            if (window.MathJax) {
+                MathJax.typesetPromise().then(() => {
+                    window.print();
+                });
+            } else {
+                window.print();
+            }
+        }
+
+        function buildPrintArea() {
+            const printArea = document.getElementById('print-area');
+            let html = `<h2>QCM : Proportions et pourcentages (Corrigé)</h2>`;
+            
+            questions.forEach((q, i) => {
+                html += `<div class="print-question">
+                            <p><strong>Question ${i + 1} :</strong> ${q.question}</p>
+                            <ul class="print-options">`;
+                
+                q.options.forEach(opt => {
+                    let isCorrectClass = opt.isCorrect ? 'class="print-correct-answer"' : '';
+                    let indicator = opt.isCorrect ? '✔️' : '◻️';
+                    let extraInfo = (opt.isCorrect && opt.label === 'E' && opt.hiddenCorrectStr) ? ` <em>(${opt.hiddenCorrectStr})</em>` : '';
+                    
+                    html += `<li ${isCorrectClass}>${indicator} <strong>${opt.label}.</strong> ${opt.text} ${extraInfo}</li>`;
+                });
+                
+                html += `</ul></div>`;
+            });
+            printArea.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>

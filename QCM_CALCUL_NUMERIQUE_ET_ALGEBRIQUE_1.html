@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QCM : Calcul numérique, algébrique et Formules</title>
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #fff;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Accessibilité : Malvoyants */
+        body.mal-voyant {
+            --bg-color: #000;
+            --text-color: #fff;
+            --card-bg: #111;
+            --primary: #fff;
+            --secondary: #ffeb3b;
+            font-size: 140%;
+            font-weight: bold;
+        }
+        body.mal-voyant button, body.mal-voyant input, body.mal-voyant select {
+            border: 2px solid #fff;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Accessibilité : Mal Dys */
+        body.mal-dys {
+            font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+            letter-spacing: 0.15em;
+            word-spacing: 0.3em;
+            line-height: 1.8;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary);
+            color: #fff;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+
+        .btn-copyright { background-color: var(--primary); }
+        .btn-copyright:hover { background-color: #1a252f; }
+        .btn-pdf { background-color: #8e44ad; }
+        .btn-pdf:hover { background-color: #732d91; }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .text-center { text-align: center; }
+        
+        input[type="number"], select {
+            padding: 10px;
+            font-size: 1.1rem;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .slide { display: none; }
+        .slide.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timer-display {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .options-list { list-style-type: none; padding: 0; }
+        .options-list li { margin-bottom: 15px; }
+
+        .options-list label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            transition: background 0.2s;
+        }
+
+        .options-list label:hover {
+            background-color: #e0f7fa;
+            color: #000;
+        }
+
+        .options-list input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .result-panel { display: none; text-align: center; }
+        .correct { color: var(--success) !important; font-weight: bold; border-color: var(--success) !important; }
+        .incorrect { color: var(--accent) !important; text-decoration: line-through; border-color: var(--accent) !important; }
+
+        /* Popup Droits d'auteur */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            background: transparent;
+            color: var(--accent);
+            font-size: 1.5rem;
+            padding: 0;
+            border: none;
+        }
+
+        /* Impression PDF */
+        #print-area { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                display: block;
+                position: absolute;
+                left: 0; top: 0; width: 100%;
+                color: #000;
+                background: #fff;
+            }
+            .print-question { margin-bottom: 30px; page-break-inside: avoid; }
+            .print-options { list-style-type: none; padding-left: 0; }
+            .print-options li { margin-bottom: 5px; }
+            .print-correct-answer { font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <button onclick="document.body.classList.toggle('mal-voyant')">👁️ Mode Malvoyant</button>
+        <button onclick="document.body.classList.toggle('mal-dys')">📝 Mode Dys</button>
+        <button class="btn-copyright" onclick="document.getElementById('copyright-modal').style.display='flex'">© Droits d'auteur</button>
+    </div>
+
+    <div id="copyright-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="document.getElementById('copyright-modal').style.display='none'">&times;</button>
+            <h3>⚖️ Droits d'Auteur et Licence d'Utilisation</h3>
+            <p><strong>Auteur :</strong> Yann Merdy (yann.merdy@gmail.com) - Avril 2026</p>
+            <p><strong>Licence d'Utilisation Non Commerciale</strong><br>
+            Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application ('Calcul numérique et algébrique') sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
+            <p><strong>Conditions :</strong><br>
+            <em>Utilisation Privée et Éducative (Autorisée) :</em> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu uniquement à des fins personnelles, éducatives et non lucratives.<br>
+            <em>Utilisation Commerciale (Interdite) :</em> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins commerciales, lucratives ou professionnelles est strictement interdite sans un accord écrit préalable et explicite de l'auteur.</p>
+            <p><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</p>
+            <p>Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
+        </div>
+    </div>
+
+    <div id="setup-screen" class="quiz-container text-center">
+        <h2>Paramétrage du QCM : Calcul numérique, algébrique et Formules</h2>
+        
+        <div class="form-group">
+            <label for="num-questions">Nombre de questions :</label>
+            <input type="number" id="num-questions" min="1" max="100" value="10">
+        </div>
+
+        <div class="form-group">
+            <label for="timing-mode">Mode de passage :</label>
+            <select id="timing-mode">
+                <option value="0">Manuel (L'enseignant passe les diapos)</option>
+                <option value="30">Minuté : 30 secondes par question</option>
+                <option value="45">Minuté : 45 secondes par question</option>
+                <option value="60">Minuté : 60 secondes par question</option>
+                <option value="90">Minuté : 90 secondes par question</option>
+            </select>
+        </div>
+
+        <br>
+        <button onclick="startQuiz()">Générer et Démarrer l'animation HTML</button>
+        <br><br>
+        <button class="btn-pdf" onclick="generateAndPrintPDF()">🖨️ Générer PDF (Sujet + Correction)</button>
+    </div>
+
+    <div id="quiz-main" class="quiz-container" style="display:none;">
+        <div id="slides-container"></div>
+
+        <div class="navigation">
+            <button id="prev-btn" onclick="changeSlide(-1)" style="display:none;">Précédent</button>
+            <button id="next-btn" onclick="changeSlide(1)">Suivant</button>
+            <button id="submit-btn" onclick="showResults()" style="display:none; background-color: var(--success);">Valider</button>
+        </div>
+
+        <div id="result-panel" class="result-panel">
+            <h2>Résultats</h2>
+            <p id="score-text"></p>
+            <button onclick="returnToSetup()">Générer un nouveau QCM</button>
+            <button class="btn-pdf" onclick="window.print()">🖨️ Imprimer la correction</button>
+        </div>
+    </div>
+
+    <div id="print-area"></div>
+
+    <script>
+        // Utilitaires mathématiques
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        
+        function formatNumber(num) {
+            if (Number.isInteger(num)) return num.toString();
+            return parseFloat(num.toFixed(4)).toString().replace('.', ',');
+        }
+        
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function toFraction(n, d) {
+            if (d === 0) return "Indéfini";
+            let sign = (n * d < 0) ? "-" : "";
+            n = Math.abs(n);
+            d = Math.abs(d);
+            let divisor = gcd(n, d);
+            n /= divisor;
+            d /= divisor;
+            if (d === 1) return sign + n;
+            return sign + `\\dfrac{${n}}{${d}}`;
+        }
+
+        // Sécurise la génération de fausses réponses uniques
+        function getSafeWrongs(ansStr, rawWrongsArr, suffix = "") {
+            let unique = [];
+            for (let val of rawWrongsArr) {
+                let str = (typeof val === 'number') ? formatNumber(val) + suffix : val + suffix;
+                if (str !== ansStr && !unique.includes(str)) {
+                    unique.push(str);
+                }
+            }
+            let fallback = 1;
+            while (unique.length < 4) {
+                let fakeStr = ansStr + " ".repeat(fallback); 
+                if (!unique.includes(fakeStr)) unique.push(fakeStr);
+                fallback++;
+            }
+            return unique.slice(0, 4);
+        }
+
+        // ====== LA GRANDE BIBLIOTHÈQUE DE FORMULES (21 Formules) ======
+        const formulasLibrary = [
+            { // 1. Vitesse
+                eq: "v = \\dfrac{d}{t}", context: "la cinématique",
+                algebraic: [
+                    { target: "d", ans: "$v \\times t$", wrongs: ["$\\dfrac{v}{t}$", "$\\dfrac{t}{v}$", "$v + t$"] },
+                    { target: "t", ans: "$\\dfrac{d}{v}$", wrongs: ["$v \\times d$", "$\\dfrac{v}{d}$", "$d - v$"] }
+                ],
+                numerical: function() {
+                    let v = randInt(10, 130); let t = randInt(2, 10); let d = v * t;
+                    return { text: `Sachant que $v = \\dfrac{d}{t}$, calculer la distance $d$ pour $v = ${v}$ et $t = ${t}$.`, ans: formatNumber(d), wrongs: [v/t, t/v, d+v, d-v] };
+                }
+            },
+            { // 2. Énergie cinétique
+                eq: "E_c = \\dfrac{1}{2} m v^2", context: "la mécanique",
+                algebraic: [
+                    { target: "m", ans: "$\\dfrac{2 E_c}{v^2}$", wrongs: ["$\\dfrac{E_c}{2 v^2}$", "$2 E_c v^2$", "$\\sqrt{\\dfrac{2 E_c}{v}}$"] },
+                    { target: "v", ans: "$\\sqrt{\\dfrac{2 E_c}{m}}$", wrongs: ["$\\dfrac{2 E_c}{m}$", "$\\sqrt{\\dfrac{E_c}{2 m}}$", "$\\dfrac{E_c}{2 m}$"] }
+                ],
+                numerical: function() {
+                    let m = randInt(2, 20)*2; let v = randInt(2, 10); let Ec = 0.5 * m * v * v;
+                    return { text: `Pour $E_c = \\dfrac{1}{2} m v^2$, calculer la masse $m$ avec $E_c = ${Ec}$ et $v = ${v}$.`, ans: formatNumber(m), wrongs: [Ec/(v*v), 2*Ec/v, m*2, m/2] };
+                }
+            },
+            { // 3. Loi des gaz parfaits
+                eq: "P V = n R T", context: "la thermodynamique",
+                algebraic: [
+                    { target: "T", ans: "$\\dfrac{P V}{n R}$", wrongs: ["$\\dfrac{n R}{P V}$", "$P V n R$", "$\\dfrac{P n}{V R}$"] },
+                    { target: "n", ans: "$\\dfrac{P V}{R T}$", wrongs: ["$\\dfrac{R T}{P V}$", "$\\dfrac{P V T}{R}$", "$\\dfrac{P R}{V T}$"] }
+                ],
+                numerical: function() {
+                    let P = randInt(1, 5)*1000; let V = randInt(2, 10); let n = randInt(1, 5); let R = 8.314; let T = (P*V)/(n*R);
+                    return { text: `Dans $P V = n R T$, calculer $P$ pour $V = ${V}$, $n = ${n}$, $R = 8{,}314$ et $T = ${formatNumber(T)}$.`, ans: formatNumber(P), wrongs: [P/10, P*10, P+1000, P-500] };
+                }
+            },
+            { // 4. Relativité restreinte
+                eq: "\\gamma = \\dfrac{1}{\\sqrt{1 - \\dfrac{v^2}{c^2}}}", context: "la relativité",
+                algebraic: [
+                    { target: "v", ans: "$c \\sqrt{1 - \\dfrac{1}{\\gamma^2}}$", wrongs: ["$c (1 - \\dfrac{1}{\\gamma^2})$", "$c \\sqrt{\\dfrac{1}{\\gamma^2} - 1}$", "$\\dfrac{c}{\\sqrt{1 - \\gamma^2}}$"] },
+                    { target: "c", ans: "$\\dfrac{v}{\\sqrt{1 - \\dfrac{1}{\\gamma^2}}}$", wrongs: ["$v \\sqrt{1 - \\dfrac{1}{\\gamma^2}}$", "$\\dfrac{v}{1 - \\dfrac{1}{\\gamma^2}}$", "$\\gamma \\sqrt{1 - v^2}$"] }
+                ],
+                numerical: function() {
+                    let v_c = randInt(6, 8) / 10; let gamma = 1 / Math.sqrt(1 - v_c*v_c);
+                    return { text: `Sachant $\\gamma = \\dfrac{1}{\\sqrt{1 - \\dfrac{v^2}{c^2}}}$, calculer $\\gamma$ pour $v = ${formatNumber(v_c)}c$.`, ans: formatNumber(gamma), wrongs: [gamma*2, gamma/2, 1-v_c, 1+v_c] };
+                }
+            },
+            { // 5. Aire du trapèze
+                eq: "A = \\dfrac{B + b}{2} \\times h", context: "la géométrie",
+                algebraic: [
+                    { target: "h", ans: "$\\dfrac{2 A}{B + b}$", wrongs: ["$\\dfrac{A}{2(B + b)}$", "$\\dfrac{B + b}{2 A}$", "$\\dfrac{A(B + b)}{2}$"] },
+                    { target: "B", ans: "$\\dfrac{2 A}{h} - b$", wrongs: ["$\\dfrac{2 A - b}{h}$", "$\\dfrac{A}{2 h} - b$", "$\\dfrac{h}{2 A} - b$"] }
+                ],
+                numerical: function() {
+                    let B = randInt(10, 20); let b = randInt(2, 9); let h = randInt(4, 12); let A = ((B+b)/2)*h;
+                    return { text: `Pour $A = \\dfrac{B + b}{2} \\times h$, trouver $h$ avec $A = ${A}$, $B = ${B}$ et $b = ${b}$.`, ans: formatNumber(h), wrongs: [h*2, A/(B+b), (2*A)/(B*b), h+5] };
+                }
+            },
+            { // 6. Intérêts composés
+                eq: "C_n = C_0 \\left(1 + \\dfrac{t}{100}\\right)^n", context: "l'économie",
+                algebraic: [
+                    { target: "C_0", ans: "$\\dfrac{C_n}{\\left(1 + \\dfrac{t}{100}\\right)^n}$", wrongs: ["$C_n \\left(1 + \\dfrac{t}{100}\\right)^n$", "$\\dfrac{C_n}{n \\left(1 + \\dfrac{t}{100}\\right)}$", "$C_n - \\left(1 + \\dfrac{t}{100}\\right)^n$"] }
+                ],
+                numerical: function() {
+                    let C0 = randInt(10, 50)*100; let t = randInt(2, 8); let n = randInt(2, 5); let Cn = C0 * Math.pow(1 + t/100, n);
+                    return { text: `Dans $C_n = C_0 \\left(1 + \\dfrac{t}{100}\\right)^n$, calculer $C_n$ pour $C_0 = ${C0}$, $t = ${t}$ et $n = ${n}$.`, ans: formatNumber(Cn), wrongs: [C0*(1+(t/100)*n), Cn*1.1, Cn/1.1, C0*Math.pow(1+t, n)] };
+                }
+            },
+            { // 7. Gravitation universelle
+                eq: "F = G \\dfrac{m_A m_B}{d^2}", context: "la mécanique céleste",
+                algebraic: [
+                    { target: "d", ans: "$\\sqrt{\\dfrac{G m_A m_B}{F}}$", wrongs: ["$\\dfrac{G m_A m_B}{F}$", "$\\sqrt{\\dfrac{F}{G m_A m_B}}$", "$\\left(\\dfrac{G m_A m_B}{F}\\right)^2$"] },
+                    { target: "m_A", ans: "$\\dfrac{F d^2}{G m_B}$", wrongs: ["$\\dfrac{G m_B}{F d^2}$", "$\\dfrac{F d}{G m_B}$", "$\\sqrt{\\dfrac{F d^2}{G m_B}}$"] }
+                ],
+                numerical: function() {
+                    let F = randInt(10, 100); let mA = randInt(2, 10); let mB = randInt(2, 10); let d = randInt(2, 5); let F_calc = (mA * mB) / (d * d);
+                    return { text: `Si on pose $G=1$ dans $F = G \\dfrac{m_A m_B}{d^2}$, calculer $F$ pour $m_A = ${mA}$, $m_B = ${mB}$ et $d = ${d}$.`, ans: formatNumber(F_calc), wrongs: [(mA*mB)/d, (mA*mB)/(d*d*d), F_calc*2, F_calc/2] };
+                }
+            },
+            { // 8. Puissance électrique (Joule)
+                eq: "P = R I^2", context: "l'électricité",
+                algebraic: [
+                    { target: "R", ans: "$\\dfrac{P}{I^2}$", wrongs: ["$\\dfrac{I^2}{P}$", "$P I^2$", "$\\sqrt{\\dfrac{P}{I}}$"] },
+                    { target: "I", ans: "$\\sqrt{\\dfrac{P}{R}}$", wrongs: ["$\\dfrac{P}{R}$", "$\\dfrac{R}{P}$", "$\\left(\\dfrac{P}{R}\\right)^2$"] }
+                ],
+                numerical: function() {
+                    let R = randInt(5, 50); let I = randInt(2, 10); let P = R * I * I;
+                    return { text: `Avec $P = R I^2$, calculer la résistance $R$ pour $P = ${P}$ et $I = ${I}$.`, ans: formatNumber(R), wrongs: [P/I, P*I*I, R*2, R/2] };
+                }
+            },
+            { // 9. Énergie condensateur
+                eq: "E = \\dfrac{1}{2} C U^2", context: "l'électronique",
+                algebraic: [
+                    { target: "C", ans: "$\\dfrac{2 E}{U^2}$", wrongs: ["$\\dfrac{E}{2 U^2}$", "$\\sqrt{\\dfrac{2 E}{U}}$", "$2 E U^2$"] },
+                    { target: "U", ans: "$\\sqrt{\\dfrac{2 E}{C}}$", wrongs: ["$\\dfrac{2 E}{C}$", "$\\dfrac{E}{2 C}$", "$\\sqrt{\\dfrac{E}{2 C}}$"] }
+                ],
+                numerical: function() {
+                    let C = randInt(2, 10); let U = randInt(5, 20); let E = 0.5 * C * U * U;
+                    return { text: `Sachant $E = \\dfrac{1}{2} C U^2$, calculer $E$ pour $C = ${C}$ et $U = ${U}$.`, ans: formatNumber(E), wrongs: [C*U*U, 0.5*C*U, E*2, E/2] };
+                }
+            },
+            { // 10. Concentration molaire
+                eq: "C = \\dfrac{n}{V}", context: "la chimie",
+                algebraic: [
+                    { target: "n", ans: "$C \\times V$", wrongs: ["$\\dfrac{C}{V}$", "$\\dfrac{V}{C}$", "$C + V$"] },
+                    { target: "V", ans: "$\\dfrac{n}{C}$", wrongs: ["$n \\times C$", "$\\dfrac{C}{n}$", "$n - C$"] }
+                ],
+                numerical: function() {
+                    let n = randInt(2, 10); let V = randInt(2, 5); let C = n / V;
+                    return { text: `Dans $C = \\dfrac{n}{V}$, trouver $V$ sachant que $n = ${n}$ et $C = ${formatNumber(C)}$.`, ans: formatNumber(V), wrongs: [n*C, C/n, V+2, V-1] };
+                }
+            },
+            { // 11. Pendule simple
+                eq: "T = 2\\pi \\sqrt{\\dfrac{L}{g}}", context: "la mécanique oscillatoire",
+                algebraic: [
+                    { target: "L", ans: "$g \\left(\\dfrac{T}{2\\pi}\\right)^2$", wrongs: ["$\\dfrac{g T}{2\\pi}$", "$\\sqrt{\\dfrac{g T}{2\\pi}}$", "$g \\left(\\dfrac{2\\pi}{T}\\right)^2$"] },
+                    { target: "g", ans: "$L \\left(\\dfrac{2\\pi}{T}\\right)^2$", wrongs: ["$\\dfrac{L 2\\pi}{T}$", "$L \\left(\\dfrac{T}{2\\pi}\\right)^2$", "$\\sqrt{\\dfrac{L 2\\pi}{T}}$"] }
+                ],
+                numerical: function() {
+                    let L = randInt(1, 9); let calc = 2 * Math.sqrt(L);
+                    return { text: `En posant la constante $\\dfrac{2\\pi}{\\sqrt{g}} = 2$ dans $T = 2\\pi \\sqrt{\\dfrac{L}{g}}$, calculer $T$ pour une longueur $L = ${L}$.`, ans: formatNumber(calc), wrongs: [calc*2, 2*L, Math.sqrt(L), calc/2] };
+                }
+            },
+            { // 12. Pression
+                eq: "P = \\dfrac{F}{S}", context: "la mécanique des fluides",
+                algebraic: [
+                    { target: "F", ans: "$P \\times S$", wrongs: ["$\\dfrac{P}{S}$", "$\\dfrac{S}{P}$", "$P + S$"] },
+                    { target: "S", ans: "$\\dfrac{F}{P}$", wrongs: ["$F \\times P$", "$\\dfrac{P}{F}$", "$F - P$"] }
+                ],
+                numerical: function() {
+                    let F = randInt(10, 50)*10; let S = randInt(2, 5); let P = F / S;
+                    return { text: `Avec $P = \\dfrac{F}{S}$, calculer la force $F$ pour une pression $P = ${P}$ et une surface $S = ${S}$.`, ans: formatNumber(F), wrongs: [P/S, S/P, F*2, F/2] };
+                }
+            },
+            { // 13. Énergie thermique
+                eq: "Q = m c \\Delta T", context: "la calorimétrie",
+                algebraic: [
+                    { target: "m", ans: "$\\dfrac{Q}{c \\Delta T}$", wrongs: ["$\\dfrac{c \\Delta T}{Q}$", "$Q c \\Delta T$", "$\\dfrac{Q c}{\\Delta T}$"] },
+                    { target: "\\Delta T", ans: "$\\dfrac{Q}{m c}$", wrongs: ["$\\dfrac{m c}{Q}$", "$Q m c$", "$\\dfrac{Q m}{c}$"] }
+                ],
+                numerical: function() {
+                    let m = randInt(2, 5); let c = randInt(2, 5)*10; let dT = randInt(10, 30); let Q = m * c * dT;
+                    return { text: `Sachant $Q = m c \\Delta T$, calculer $Q$ pour $m = ${m}$, $c = ${c}$ et $\\Delta T = ${dT}$.`, ans: formatNumber(Q), wrongs: [Q/(m*c), Q*2, m*c/dT, Q/2] };
+                }
+            },
+            { // 14. Force élastique d'un ressort
+                eq: "F = k \\Delta l", context: "la mécanique (loi de Hooke)",
+                algebraic: [
+                    { target: "k", ans: "$\\dfrac{F}{\\Delta l}$", wrongs: ["$F \\times \\Delta l$", "$\\dfrac{\\Delta l}{F}$", "$F + \\Delta l$"] },
+                    { target: "\\Delta l", ans: "$\\dfrac{F}{k}$", wrongs: ["$F \\times k$", "$\\dfrac{k}{F}$", "$F - k$"] }
+                ],
+                numerical: function() {
+                    let k = randInt(10, 50); let dl = randInt(2, 10); let F = k * dl;
+                    return { text: `Avec $F = k \\Delta l$, calculer la raideur $k$ pour $F = ${F}$ et $\\Delta l = ${dl}$.`, ans: formatNumber(k), wrongs: [F*dl, dl/F, k*2, k/2] };
+                }
+            },
+            { // 15. Volume du cône
+                eq: "V = \\dfrac{1}{3} \\pi r^2 h", context: "la géométrie spatiale",
+                algebraic: [
+                    { target: "h", ans: "$\\dfrac{3 V}{\\pi r^2}$", wrongs: ["$\\dfrac{V}{3 \\pi r^2}$", "$\\dfrac{\\pi r^2}{3 V}$", "$\\dfrac{3 V r^2}{\\pi}$"] },
+                    { target: "r", ans: "$\\sqrt{\\dfrac{3 V}{\\pi h}}$", wrongs: ["$\\dfrac{3 V}{\\pi h}$", "$\\sqrt{\\dfrac{V}{3 \\pi h}}$", "$\\dfrac{\\pi h}{3 V}$"] }
+                ],
+                numerical: function() {
+                    let r = randInt(2, 5); let h = randInt(3, 9); let V = (1/3) * r * r * h;
+                    return { text: `Si on simplifie en posant $\\pi = 3$, calculer $V$ dans $V = \\dfrac{1}{3} \\pi r^2 h$ pour $r = ${r}$ et $h = ${h}$.`, ans: formatNumber(V*3), wrongs: [V*9, r*h, (r*r*h)/3, V] };
+                }
+            },
+            { // 16. Surface de la sphère
+                eq: "A = 4 \\pi r^2", context: "la géométrie spatiale",
+                algebraic: [
+                    { target: "r", ans: "$\\sqrt{\\dfrac{A}{4 \\pi}}$", wrongs: ["$\\dfrac{A}{4 \\pi}$", "$\\dfrac{\\sqrt{A}}{4 \\pi}$", "$\\sqrt{\\dfrac{4 \\pi}{A}}$"] }
+                ],
+                numerical: function() {
+                    let r = randInt(2, 10); let A = 4 * r * r; 
+                    return { text: `En posant $\\pi = 1$ pour simplifier, calculer la surface $A = 4 \\pi r^2$ pour un rayon $r = ${r}$.`, ans: formatNumber(A), wrongs: [A/4, 4*r, r*r, A*2] };
+                }
+            },
+            { // 17. Masse volumique
+                eq: "\\rho = \\dfrac{m}{V}", context: "la physique des matériaux",
+                algebraic: [
+                    { target: "m", ans: "$\\rho \\times V$", wrongs: ["$\\dfrac{\\rho}{V}$", "$\\dfrac{V}{\\rho}$", "$\\rho + V$"] },
+                    { target: "V", ans: "$\\dfrac{m}{\\rho}$", wrongs: ["$m \\times \\rho$", "$\\dfrac{\\rho}{m}$", "$m - \\rho$"] }
+                ],
+                numerical: function() {
+                    let V = randInt(2, 10); let rho = randInt(2, 10); let m = V * rho;
+                    return { text: `Sachant $\\rho = \\dfrac{m}{V}$, calculer le volume $V$ d'un objet de masse $m = ${m}$ et de masse volumique $\\rho = ${rho}$.`, ans: formatNumber(V), wrongs: [m*rho, rho/m, V*2, V/2] };
+                }
+            },
+            { // 18. Loi d'Ohm
+                eq: "U = R \\times I", context: "l'électricité",
+                algebraic: [
+                    { target: "R", ans: "$\\dfrac{U}{I}$", wrongs: ["$U \\times I$", "$\\dfrac{I}{U}$", "$U - I$"] },
+                    { target: "I", ans: "$\\dfrac{U}{R}$", wrongs: ["$U \\times R$", "$\\dfrac{R}{U}$", "$U + R$"] }
+                ],
+                numerical: function() {
+                    let R = randInt(5, 50); let I = randInt(2, 10); let U = R * I;
+                    return { text: `D'après $U = R \\times I$, calculer l'intensité $I$ sachant que $U = ${U}$ et $R = ${R}$.`, ans: formatNumber(I), wrongs: [U*R, R/U, I*2, I+R] };
+                }
+            },
+            { // 19. Retour sur Investissement (ROI)
+                eq: "ROI = \\dfrac{G - I}{I}", context: "la finance",
+                algebraic: [
+                    { target: "G", ans: "$I(1 + ROI)$", wrongs: ["$I \\times ROI$", "$\\dfrac{ROI}{I}$", "$I(1 - ROI)$"] },
+                    { target: "I", ans: "$\\dfrac{G}{1 + ROI}$", wrongs: ["$\\dfrac{G}{ROI - 1}$", "$G(1 + ROI)$", "$\\dfrac{G}{ROI}$"] }
+                ],
+                numerical: function() {
+                    let I = randInt(10, 50)*100; let G = I + randInt(1, 5)*100; let ROI = (G - I)/I;
+                    return { text: `Avec la formule $ROI = \\dfrac{G - I}{I}$, calculer le ROI pour un gain $G = ${G}$ et un investissement initial $I = ${I}$.`, ans: formatNumber(ROI), wrongs: [G/I, (G+I)/I, ROI*10, I/G] };
+                }
+            },
+            { // 20. Énergie potentielle de pesanteur
+                eq: "E_p = m g h", context: "la mécanique",
+                algebraic: [
+                    { target: "h", ans: "$\\dfrac{E_p}{m g}$", wrongs: ["$\\dfrac{m g}{E_p}$", "$E_p m g$", "$\\dfrac{E_p g}{m}$"] },
+                    { target: "m", ans: "$\\dfrac{E_p}{g h}$", wrongs: ["$\\dfrac{g h}{E_p}$", "$E_p g h$", "$\\dfrac{E_p h}{g}$"] }
+                ],
+                numerical: function() {
+                    let m = randInt(2, 10); let g = 10; let h = randInt(2, 20); let Ep = m * g * h;
+                    return { text: `En approchant $g = 10$, calculer l'altitude $h$ dans $E_p = m g h$ pour $E_p = ${Ep}$ et $m = ${m}$.`, ans: formatNumber(h), wrongs: [Ep*m*g, m*g/Ep, h*2, h/10] };
+                }
+            },
+            { // 21. Énergie d'un photon
+                eq: "E = \\dfrac{h c}{\\lambda}", context: "la physique quantique",
+                algebraic: [
+                    { target: "\\lambda", ans: "$\\dfrac{h c}{E}$", wrongs: ["$\\dfrac{E}{h c}$", "$E h c$", "$\\dfrac{h E}{c}$"] },
+                    { target: "h", ans: "$\\dfrac{E \\lambda}{c}$", wrongs: ["$\\dfrac{c}{E \\lambda}$", "$\\dfrac{E c}{\\lambda}$", "$E \\lambda c$"] }
+                ],
+                numerical: function() {
+                    let lambda = randInt(2, 10)*100; let hc = 1200; let E = hc / lambda; // Simplification pour le calcul mental
+                    return { text: `Dans le système d'unités choisi, on pose $hc = 1200$. Calculer l'énergie $E = \\dfrac{h c}{\\lambda}$ pour une longueur d'onde $\\lambda = ${lambda}$.`, ans: formatNumber(E), wrongs: [lambda/1200, E*10, lambda*1200, E/2] };
+                }
+            }
+        ];
+
+        // Générateurs classiques + super-générateur
+        const generators = [
+            function() { // Opérations sur les fractions
+                let a = randInt(1, 9); let b = randInt(2, 9);
+                let c = randInt(1, 9); let d = randInt(2, 9);
+                let n = a * c; let den = b * d;
+                let ansStr = `$${toFraction(n, den)}$`;
+                let wrongs = [`$${toFraction(a+c, b+d)}$`, `$${toFraction(n+1, den)}$`, `$${toFraction(n, den+1)}$`, `$${toFraction(b*d, a*c)}$`, `$${toFraction(a*d, b*c)}$`];
+                return { text: `Calculer et donner le résultat sous forme irréductible : $\\dfrac{${a}}{${b}} \\times \\dfrac{${c}}{${d}}$`, ansStr, wrongs: getSafeWrongs(ansStr, wrongs) };
+            },
+            function() { // Équation simple
+                let a = randInt(2, 9); let b = randInt(1, 20);
+                let ansStr = `$x = ${toFraction(-b, a)}$`;
+                let wrongs = [`$x = ${toFraction(b, a)}$`, `$x = ${toFraction(-a, b)}$`, `$x = ${toFraction(a, b)}$`, `$x = ${b-a}$`, `$x = ${-b-a}$`];
+                return { text: `Résoudre dans $\\mathbb{R}$ l'équation $${a}x + ${b} = 0$.`, ansStr, wrongs: getSafeWrongs(ansStr, wrongs) };
+            },
+            function() { // SUPER-GÉNÉRATEUR DE FORMULES
+                let formula = formulasLibrary[randInt(0, formulasLibrary.length - 1)];
+                let mode = randInt(0, 1); // 0 = algébrique, 1 = numérique
+
+                if (mode === 0) {
+                    let task = formula.algebraic[randInt(0, formula.algebraic.length - 1)];
+                    let text = `À partir de la formule concernant ${formula.context} $${formula.eq}$, isoler le paramètre $${task.target}$.`;
+                    return { text: text, ansStr: task.ans, wrongs: getSafeWrongs(task.ans, task.wrongs) };
+                } else {
+                    let numTask = formula.numerical();
+                    return { text: numTask.text, ansStr: numTask.ans, wrongs: getSafeWrongs(numTask.ans, numTask.wrongs) };
+                }
+            }
+        ];
+
+        let currentSlide = 0;
+        let questions = [];
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let timingModeValue = 0;
+
+        function generateQuestions(numQuestions) {
+            questions = [];
+            let generatedTexts = new Set(); 
+            
+            let correctPositions = [];
+            for (let i = 0; i < numQuestions; i++) {
+                correctPositions.push(i % 5);
+            }
+            correctPositions.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < numQuestions; i++) {
+                let genData;
+                let isUnique = false;
+                let safeguard = 0;
+
+                while (!isUnique && safeguard < 200) {
+                    // Force l'utilisation fréquente du super-générateur de formules
+                    let choice = randInt(0, 10) > 2 ? 2 : randInt(0, 1); 
+                    genData = generators[choice]();
+                    
+                    if (!generatedTexts.has(genData.text)) {
+                        generatedTexts.add(genData.text);
+                        isUnique = true;
+                    }
+                    safeguard++;
+                }
+
+                let targetPos = correctPositions[i];
+                questions.push(buildSlideData(genData.text, genData.ansStr, genData.wrongs, targetPos));
+            }
+        }
+
+        function buildSlideData(text, correctStr, wrongArr, targetPos) {
+            let letters = ['A', 'B', 'C', 'D'];
+            let optionsObj = [];
+            let shuffledWrongs = wrongArr.sort(() => Math.random() - 0.5);
+
+            if (targetPos === 4) {
+                for (let i = 0; i < 4; i++) {
+                    optionsObj.push({ label: letters[i], text: shuffledWrongs[i], isCorrect: false });
+                }
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: true, hiddenCorrectStr: correctStr });
+            } else {
+                let currentWrongs = 0;
+                for (let i = 0; i < 4; i++) {
+                    if (i === targetPos) {
+                        optionsObj.push({ label: letters[i], text: correctStr, isCorrect: true });
+                    } else {
+                        optionsObj.push({ label: letters[i], text: shuffledWrongs[currentWrongs], isCorrect: false });
+                        currentWrongs++;
+                    }
+                }
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: false });
+            }
+
+            return { question: text, options: optionsObj };
+        }
+
+        function startQuiz() {
+            let numInput = parseInt(document.getElementById('num-questions').value);
+            if (isNaN(numInput) || numInput < 1) numInput = 10;
+            
+            timingModeValue = parseInt(document.getElementById('timing-mode').value);
+
+            generateQuestions(numInput);
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('quiz-main').style.display = 'block';
+            
+            renderSlides();
+            currentSlide = 0;
+            updateNavigation();
+            startTimerIfNeeded();
+        }
+
+        function returnToSetup() {
+            clearInterval(timerInterval);
+            document.getElementById('setup-screen').style.display = 'block';
+            document.getElementById('quiz-main').style.display = 'none';
+            document.getElementById('result-panel').style.display = 'none';
+        }
+
+        function renderSlides() {
+            const container = document.getElementById('slides-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                let div = document.createElement('div');
+                div.className = `slide ${index === 0 ? 'active' : ''}`;
+                div.id = `slide-${index}`;
+
+                let timerHtml = timingModeValue > 0 ? `<span class="timer-display" id="timer-${index}"></span>` : '';
+                
+                let html = `<div class="question-title">
+                                <span>Question ${index + 1} / ${questions.length}</span>
+                                ${timerHtml}
+                            </div>`;
+                html += `<p>${q.question}</p><ul class="options-list">`;
+
+                q.options.forEach((opt, oIndex) => {
+                    html += `
+                        <li>
+                            <label id="label-${index}-${oIndex}">
+                                <input type="radio" name="q${index}" value="${opt.isCorrect}">
+                                <strong>${opt.label}.</strong>&nbsp; ${opt.text}
+                            </label>
+                        </li>
+                    `;
+                });
+
+                html += `</ul>`;
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function startTimerIfNeeded() {
+            clearInterval(timerInterval);
+            if (timingModeValue > 0) {
+                timeRemaining = timingModeValue;
+                updateTimerUI();
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerUI();
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        if (currentSlide < questions.length - 1) {
+                            changeSlide(1);
+                        } else {
+                            showResults();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateTimerUI() {
+            let timerEl = document.getElementById(`timer-${currentSlide}`);
+            if (timerEl) {
+                timerEl.innerHTML = `⏱️ ${timeRemaining}s`;
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prev-btn').style.display = (currentSlide === 0 || timingModeValue > 0) ? 'none' : 'inline-block';
+            
+            if (currentSlide === questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('submit-btn').style.display = 'inline-block';
+            } else {
+                document.getElementById('next-btn').style.display = timingModeValue > 0 ? 'none' : 'inline-block';
+                document.getElementById('submit-btn').style.display = 'none';
+            }
+        }
+
+        function changeSlide(direction) {
+            document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+            currentSlide += direction;
+            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+            updateNavigation();
+            startTimerIfNeeded();
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            let score = 0;
+            questions.forEach((q, index) => {
+                let selected = document.querySelector(`input[name="q${index}"]:checked`);
+                
+                q.options.forEach((opt, oIndex) => {
+                    let labelEl = document.getElementById(`label-${index}-${oIndex}`);
+                    if (opt.isCorrect) {
+                        labelEl.classList.add('correct');
+                        if(opt.label === 'E' && opt.hiddenCorrectStr) {
+                            labelEl.innerHTML += ` <span style="color:var(--primary); font-size:0.9em;">(C'était : ${opt.hiddenCorrectStr})</span>`;
+                        }
+                    } else if (selected && selected.parentNode === labelEl && !opt.isCorrect) {
+                        labelEl.classList.add('incorrect');
+                    }
+                });
+
+                if (selected && selected.value === "true") score++;
+            });
+
+            document.querySelectorAll('.slide').forEach(s => s.classList.add('active'));
+            document.querySelector('.navigation').style.display = 'none';
+            
+            let resultPanel = document.getElementById('result-panel');
+            resultPanel.style.display = 'block';
+            document.getElementById('score-text').innerHTML = `Votre score est de <strong>${score} / ${questions.length}</strong>.`;
+            
+            document.querySelectorAll('.timer-display').forEach(el => el.style.display = 'none');
+            
+            if (window.MathJax) MathJax.typesetPromise();
+            buildPrintArea();
+        }
+
+        // --- GESTION DE L'IMPRESSION PDF ---
+        function generateAndPrintPDF() {
+            let numInput = parseInt(document.getElementById('num-questions').value);
+            if (isNaN(numInput) || numInput < 1) numInput = 10;
+            
+            generateQuestions(numInput);
+            buildPrintArea();
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise().then(() => {
+                    window.print();
+                });
+            } else {
+                window.print();
+            }
+        }
+
+        function buildPrintArea() {
+            const printArea = document.getElementById('print-area');
+            let html = `<h2>QCM : Calcul numérique, algébrique et Formules (Corrigé)</h2>`;
+            
+            questions.forEach((q, i) => {
+                html += `<div class="print-question">
+                            <p><strong>Question ${i + 1} :</strong> ${q.question}</p>
+                            <ul class="print-options">`;
+                
+                q.options.forEach(opt => {
+                    let isCorrectClass = opt.isCorrect ? 'class="print-correct-answer"' : '';
+                    let indicator = opt.isCorrect ? '✔️' : '◻️';
+                    let extraInfo = (opt.isCorrect && opt.label === 'E' && opt.hiddenCorrectStr) ? ` <em>(${opt.hiddenCorrectStr})</em>` : '';
+                    
+                    html += `<li ${isCorrectClass}>${indicator} <strong>${opt.label}.</strong> ${opt.text} ${extraInfo}</li>`;
+                });
+                
+                html += `</ul></div>`;
+            });
+            printArea.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>

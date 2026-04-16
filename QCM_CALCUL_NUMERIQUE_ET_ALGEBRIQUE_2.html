@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QCM : Forme canonique, Inéquations et Algèbre</title>
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #fff;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Accessibilité : Malvoyants */
+        body.mal-voyant {
+            --bg-color: #000;
+            --text-color: #fff;
+            --card-bg: #111;
+            --primary: #fff;
+            --secondary: #ffeb3b;
+            font-size: 140%;
+            font-weight: bold;
+        }
+        body.mal-voyant button, body.mal-voyant input, body.mal-voyant select {
+            border: 2px solid #fff;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Accessibilité : Mal Dys */
+        body.mal-dys {
+            font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+            letter-spacing: 0.15em;
+            word-spacing: 0.3em;
+            line-height: 1.8;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary);
+            color: #fff;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+
+        .btn-copyright { background-color: var(--primary); }
+        .btn-copyright:hover { background-color: #1a252f; }
+        .btn-pdf { background-color: #8e44ad; }
+        .btn-pdf:hover { background-color: #732d91; }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .text-center { text-align: center; }
+        
+        input[type="number"], select {
+            padding: 10px;
+            font-size: 1.1rem;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .slide { display: none; }
+        .slide.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timer-display {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .options-list { list-style-type: none; padding: 0; }
+        .options-list li { margin-bottom: 15px; }
+
+        .options-list label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            transition: background 0.2s;
+        }
+
+        .options-list label:hover {
+            background-color: #e0f7fa;
+            color: #000;
+        }
+
+        .options-list input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .result-panel { display: none; text-align: center; }
+        .correct { color: var(--success) !important; font-weight: bold; border-color: var(--success) !important; }
+        .incorrect { color: var(--accent) !important; text-decoration: line-through; border-color: var(--accent) !important; }
+
+        /* Popup Droits d'auteur */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            background: transparent;
+            color: var(--accent);
+            font-size: 1.5rem;
+            padding: 0;
+            border: none;
+        }
+
+        /* Impression PDF */
+        #print-area { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                display: block;
+                position: absolute;
+                left: 0; top: 0; width: 100%;
+                color: #000;
+                background: #fff;
+            }
+            .print-question { margin-bottom: 30px; page-break-inside: avoid; }
+            .print-options { list-style-type: none; padding-left: 0; }
+            .print-options li { margin-bottom: 5px; }
+            .print-correct-answer { font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <button onclick="document.body.classList.toggle('mal-voyant')">👁️ Mode Malvoyant</button>
+        <button onclick="document.body.classList.toggle('mal-dys')">📝 Mode Dys</button>
+        <button class="btn-copyright" onclick="document.getElementById('copyright-modal').style.display='flex'">© Droits d'auteur</button>
+    </div>
+
+    <div id="copyright-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="document.getElementById('copyright-modal').style.display='none'">&times;</button>
+            <h3>⚖️ Droits d'Auteur et Licence d'Utilisation</h3>
+            <p><strong>Auteur :</strong> Yann Merdy (yann.merdy@gmail.com) - Avril 2026</p>
+            <p><strong>Licence d'Utilisation Non Commerciale</strong><br>
+            Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
+            <p><strong>Conditions :</strong><br>
+            <em>Utilisation Privée et Éducative (Autorisée) :</em> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu uniquement à des fins personnelles, éducatives et non lucratives.<br>
+            <em>Utilisation Commerciale (Interdite) :</em> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins commerciales, lucratives ou professionnelles est strictement interdite sans un accord écrit préalable et explicite de l'auteur.</p>
+            <p><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</p>
+            <p>Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
+        </div>
+    </div>
+
+    <div id="setup-screen" class="quiz-container text-center">
+        <h2>Paramétrage du QCM : Forme canonique, Inéquations et Algèbre</h2>
+        
+        <div class="form-group">
+            <label for="num-questions">Nombre de questions :</label>
+            <input type="number" id="num-questions" min="1" max="100" value="10">
+        </div>
+
+        <div class="form-group">
+            <label for="timing-mode">Mode de passage :</label>
+            <select id="timing-mode">
+                <option value="0">Manuel (L'enseignant passe les diapos)</option>
+                <option value="30">Minuté : 30 secondes par question</option>
+                <option value="45">Minuté : 45 secondes par question</option>
+                <option value="60">Minuté : 60 secondes par question</option>
+                <option value="90">Minuté : 90 secondes par question</option>
+            </select>
+        </div>
+
+        <br>
+        <button onclick="startQuiz()">Générer et Démarrer l'animation HTML</button>
+        <br><br>
+        <button class="btn-pdf" onclick="generateAndPrintPDF()">🖨️ Générer PDF (Sujet + Correction)</button>
+    </div>
+
+    <div id="quiz-main" class="quiz-container" style="display:none;">
+        <div id="slides-container"></div>
+
+        <div class="navigation">
+            <button id="prev-btn" onclick="changeSlide(-1)" style="display:none;">Précédent</button>
+            <button id="next-btn" onclick="changeSlide(1)">Suivant</button>
+            <button id="submit-btn" onclick="showResults()" style="display:none; background-color: var(--success);">Valider</button>
+        </div>
+
+        <div id="result-panel" class="result-panel">
+            <h2>Résultats</h2>
+            <p id="score-text"></p>
+            <button onclick="returnToSetup()">Générer un nouveau QCM</button>
+            <button class="btn-pdf" onclick="window.print()">🖨️ Imprimer la correction</button>
+        </div>
+    </div>
+
+    <div id="print-area"></div>
+
+    <script>
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        function formatNumber(num) {
+            if (Number.isInteger(num)) return num.toString();
+            return parseFloat(num.toFixed(4)).toString().replace('.', ',');
+        }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function toFraction(n, d) {
+            if (d === 0) return "Indéfini";
+            let sign = (n * d < 0) ? "-" : "";
+            n = Math.abs(n); d = Math.abs(d);
+            let divisor = gcd(n, d);
+            n /= divisor; d /= divisor;
+            if (d === 1) return sign + n;
+            return sign + `\\dfrac{${n}}{${d}}`;
+        }
+
+        function getSafeWrongs(ansStr, rawWrongsArr, suffix = "") {
+            let unique = [];
+            for (let val of rawWrongsArr) {
+                let str = (typeof val === 'number') ? formatNumber(val) + suffix : val + suffix;
+                if (str !== ansStr && !unique.includes(str)) unique.push(str);
+            }
+            let fallback = 1;
+            while (unique.length < 4) {
+                let fakeStr = ansStr + " ".repeat(fallback); 
+                if (!unique.includes(fakeStr)) unique.push(fakeStr);
+                fallback++;
+            }
+            return unique.slice(0, 4);
+        }
+
+        // ====== NOUVEAUX GÉNÉRATEURS (Forme canonique et Inéquations) ======
+        const canonicalGenerators = [
+            function() { // Équation a(x-alpha)^2 + beta = 0
+                let a = randInt(1, 4) * (Math.random() < 0.5 ? 1 : -1);
+                let alpha = randInt(-5, 5);
+                let k = randInt(1, 4);
+                let hasSol = Math.random() < 0.5;
+                let beta = hasSol ? -a * k * k : a * randInt(1, 5);
+                
+                let expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}(x ${alpha < 0 ? '+' : '-'} ${Math.abs(alpha)})^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+                if (alpha === 0) expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+
+                let ansStr, w1, w2, w3;
+                if (hasSol) {
+                    let sol1 = alpha - k; let sol2 = alpha + k;
+                    ansStr = `$S = \\{${Math.min(sol1, sol2)} ; ${Math.max(sol1, sol2)}\\}$`;
+                    w1 = `$S = \\emptyset$`;
+                    w2 = `$S = \\{${-Math.min(sol1, sol2)} ; ${-Math.max(sol1, sol2)}\\}$`;
+                    w3 = `$S = \\{${alpha}\\}$`;
+                } else {
+                    ansStr = `$S = \\emptyset$`;
+                    let fakeK = randInt(1, 3);
+                    w1 = `$S = \\{${alpha - fakeK} ; ${alpha + fakeK}\\}$`;
+                    w2 = `$S = \\{${alpha}\\}$`;
+                    w3 = `$S = \\mathbb{R}$`;
+                }
+                return { text: `Résoudre dans $\\mathbb{R}$ l'équation $${expr} = 0$.`, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3]) };
+            },
+            function() { // Inéquation a(x-alpha)^2 + beta > / < / >= / <= b
+                let a = randInt(1, 3) * (Math.random() < 0.5 ? 1 : -1);
+                let alpha = randInt(-4, 4);
+                let beta = randInt(-5, 5);
+                let type = randInt(0, 3); // 0: >, 1: <, 2: >=, 3: <=
+                let isTrivial = Math.random() < 0.4; 
+                let b, ansStr, w1, w2, w3;
+
+                let signStr = ['>', '<', '\\ge', '\\le'][type];
+
+                if (isTrivial) {
+                    b = beta + (a > 0 ? -randInt(1, 5) : randInt(1, 5));
+                    let alwaysTrue = false;
+                    if (a > 0 && (type === 0 || type === 2)) alwaysTrue = true; 
+                    if (a < 0 && (type === 1 || type === 3)) alwaysTrue = true; 
+
+                    if (alwaysTrue) {
+                        ansStr = `$S = \\mathbb{R}$`;
+                        w1 = `$S = \\emptyset$`;
+                        w2 = `$S = ]-\\infty ; ${alpha}[$`;
+                        w3 = `$S = ]${alpha} ; +\\infty[$`;
+                    } else {
+                        ansStr = `$S = \\emptyset$`;
+                        w1 = `$S = \\mathbb{R}$`;
+                        w2 = `$S = \\{${alpha}\\}$`;
+                        w3 = `$S = ]-\\infty ; ${alpha}[$`;
+                    }
+                } else {
+                    let k = randInt(1, 3);
+                    b = beta + a * k * k; 
+                    let s1 = alpha - k, s2 = alpha + k;
+                    let minS = Math.min(s1, s2), maxS = Math.max(s1, s2);
+                    let ext = (a > 0 && (type === 0 || type === 2)) || (a < 0 && (type === 1 || type === 3));
+                    let strict = (type === 0 || type === 1);
+
+                    if (ext) {
+                        ansStr = strict ? `$S = ]-\\infty ; ${minS}[ \\cup ]${maxS} ; +\\infty[$` : `$S = ]-\\infty ; ${minS}] \\cup [${maxS} ; +\\infty[$`;
+                        w1 = strict ? `$S = ]${minS} ; ${maxS}[$` : `$S = [${minS} ; ${maxS}]$`;
+                    } else {
+                        ansStr = strict ? `$S = ]${minS} ; ${maxS}[$` : `$S = [${minS} ; ${maxS}]$`;
+                        w1 = strict ? `$S = ]-\\infty ; ${minS}[ \\cup ]${maxS} ; +\\infty[$` : `$S = ]-\\infty ; ${minS}] \\cup [${maxS} ; +\\infty[$`;
+                    }
+                    w2 = `$S = \\emptyset$`;
+                    w3 = `$S = \\mathbb{R}$`;
+                }
+                
+                let expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}(x ${alpha < 0 ? '+' : '-'} ${Math.abs(alpha)})^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+                if (alpha === 0) expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+
+                return { text: `Résoudre dans $\\mathbb{R}$ l'inéquation $${expr} ${signStr} ${b}$.`, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3]) };
+            },
+            function() { // Déterminer les paramètres
+                let a = randInt(1, 4) * (Math.random() < 0.5 ? 1 : -1);
+                let alpha = randInt(-5, 5);
+                let beta = randInt(-5, 5);
+                let expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}(x ${alpha < 0 ? '+' : '-'} ${Math.abs(alpha)})^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+                if (alpha === 0) expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+
+                let qType = randInt(0, 1);
+                let ansStr, w1, w2, w3, text;
+
+                if (qType === 0) {
+                    text = `Pour quelle valeur de $b$ l'équation $${expr} = b$ admet-elle exactement une seule solution ?`;
+                    ansStr = `$${beta}$`;
+                    w1 = `$${-beta}$`; w2 = `$${alpha}$`; w3 = `$0$`;
+                } else {
+                    text = `Dans l'expression $f(x) = ${expr}$, quelles sont les valeurs des paramètres $\\alpha$ et $\\beta$ (de la forme $a(x-\\alpha)^2+\\beta$) ?`;
+                    ansStr = `$\\alpha = ${alpha}, \\beta = ${beta}$`;
+                    w1 = `$\\alpha = ${-alpha}, \\beta = ${beta}$`;
+                    w2 = `$\\alpha = ${alpha}, \\beta = ${-beta}$`;
+                    w3 = `$\\alpha = ${-alpha}, \\beta = ${-beta}$`;
+                }
+                return { text, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3]) };
+            },
+            function() { // Signe de l'expression a(x-alpha)^2 + beta
+                let a = randInt(1, 5) * (Math.random() < 0.5 ? 1 : -1);
+                let alpha = randInt(-5, 5);
+                let beta = randInt(1, 10) * (Math.random() < 0.5 ? 1 : -1);
+                let expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}(x ${alpha < 0 ? '+' : '-'} ${Math.abs(alpha)})^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+                if (alpha === 0) expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x^2 ${beta >= 0 ? '+' : '-'} ${Math.abs(beta)}`;
+
+                let ansStr, w1, w2, w3;
+                if (a > 0 && beta > 0) {
+                    ansStr = `Toujours strictement positif`;
+                    w1 = `Toujours strictement négatif`;
+                    w2 = `Positif puis négatif`;
+                    w3 = `Négatif puis positif`;
+                } else if (a < 0 && beta < 0) {
+                    ansStr = `Toujours strictement négatif`;
+                    w1 = `Toujours strictement positif`;
+                    w2 = `Positif puis négatif`;
+                    w3 = `Négatif puis positif`;
+                } else {
+                    ansStr = `Prend des valeurs positives et négatives`;
+                    w1 = `Toujours strictement positif`;
+                    w2 = `Toujours strictement négatif`;
+                    w3 = `Toujours nul`;
+                }
+                return { text: `Quel est le signe de l'expression $f(x) = ${expr}$ sur $\\mathbb{R}$ ?`, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3]) };
+            }
+        ];
+
+        // Intégration des générateurs précédents (Signes classiques, etc.)
+        const specificGenerators = [
+            function() { // Signe du premier degré (ax + b)
+                let a = randInt(-5, 5); while(a === 0) a = randInt(-5, 5);
+                let b = randInt(-10, 10);
+                let root = toFraction(-b, a);
+                let rootWrong = toFraction(b, a);
+                let expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}`;
+                if (b === 0) expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x`;
+                
+                let ansStr, w1, w2, w3;
+                if (a > 0) {
+                    ansStr = `$-$ puis $+$`;
+                    w1 = `$+$ puis $-$`;
+                    w2 = `Toujours positif`;
+                    w3 = `Toujours négatif`;
+                } else {
+                    ansStr = `$+$ puis $-$`;
+                    w1 = `$-$ puis $+$`;
+                    w2 = `Toujours positif`;
+                    w3 = `Toujours négatif`;
+                }
+                return { text: `Sur $\\mathbb{R}$, quel est le signe de l'expression $f(x) = ${expr}$ de gauche à droite ?`, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3, `S'annule sans changer de signe`]) };
+            },
+            function() { // Signe du second degré factorisé
+                let r1 = randInt(-5, -1); let r2 = randInt(1, 5);
+                let a = randInt(-3, 3); while(a === 0) a = randInt(-3, 3);
+                let expr = `${a === 1 ? '' : (a === -1 ? '-' : a)}(x ${r1 < 0 ? '+' : '-'} ${Math.abs(r1)})(x - ${r2})`;
+                
+                let ansStr, w1, w2, w3;
+                if (a > 0) {
+                    ansStr = `$+$ à l'extérieur des racines, $-$ entre les deux`;
+                    w1 = `$-$ à l'extérieur des racines, $+$ entre les deux`;
+                } else {
+                    ansStr = `$-$ à l'extérieur des racines, $+$ entre les deux`;
+                    w1 = `$+$ à l'extérieur des racines, $-$ entre les deux`;
+                }
+                w2 = `Toujours positif sauf en $${r1}$ et $${r2}$`;
+                w3 = `Toujours négatif sauf en $${r1}$ et $${r2}$`;
+                
+                return { text: `Quel est le signe de l'expression factorisée $f(x) = ${expr}$ sur $\\mathbb{R}$ ?`, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3]) };
+            },
+            function() { // Isoler dans une inéquation
+                let a = randInt(2, 6); let b = randInt(1, 10);
+                let c = randInt(7, 12); let d = randInt(1, 10);
+                let num = d - b; let den = a - c; 
+                let ansStr = `$x > ${toFraction(num, den)}$`;
+                let w1 = `$x < ${toFraction(num, den)}$`; 
+                let w2 = `$x > ${toFraction(num, a+c)}$`; 
+                let w3 = `$x < ${toFraction(d+b, den)}$`; 
+                let w4 = `$x > ${toFraction(d+b, a-c)}$`;
+                return { text: `Résoudre l'inéquation suivante : $${a}x + ${b} < ${c}x + ${d}$.`, ansStr, wrongs: getSafeWrongs(ansStr, [w1, w2, w3, w4]) };
+            }
+        ];
+
+        let currentSlide = 0;
+        let questions = [];
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let timingModeValue = 0;
+
+        function generateQuestions(numQuestions) {
+            questions = [];
+            let generatedTexts = new Set(); 
+            
+            let correctPositions = [];
+            for (let i = 0; i < numQuestions; i++) {
+                correctPositions.push(i % 5);
+            }
+            correctPositions.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < numQuestions; i++) {
+                let genData;
+                let isUnique = false;
+                let safeguard = 0;
+
+                while (!isUnique && safeguard < 200) {
+                    let r = Math.random();
+                    if (r < 0.6) {
+                        // 60% : Nouveaux générateurs sur la forme canonique
+                        genData = canonicalGenerators[randInt(0, canonicalGenerators.length - 1)]();
+                    } else {
+                        // 40% : Générateurs spécifiques (Signes, inéquations classiques)
+                        genData = specificGenerators[randInt(0, specificGenerators.length - 1)]();
+                    }
+                    
+                    if (!generatedTexts.has(genData.text)) {
+                        generatedTexts.add(genData.text);
+                        isUnique = true;
+                    }
+                    safeguard++;
+                }
+
+                questions.push(buildSlideData(genData.text, genData.ansStr, genData.wrongs, correctPositions[i]));
+            }
+        }
+
+        function buildSlideData(text, correctStr, wrongArr, targetPos) {
+            let letters = ['A', 'B', 'C', 'D'];
+            let optionsObj = [];
+            let shuffledWrongs = wrongArr.sort(() => Math.random() - 0.5);
+
+            if (targetPos === 4) {
+                for (let i = 0; i < 4; i++) optionsObj.push({ label: letters[i], text: shuffledWrongs[i], isCorrect: false });
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: true, hiddenCorrectStr: correctStr });
+            } else {
+                let currentWrongs = 0;
+                for (let i = 0; i < 4; i++) {
+                    if (i === targetPos) {
+                        optionsObj.push({ label: letters[i], text: correctStr, isCorrect: true });
+                    } else {
+                        optionsObj.push({ label: letters[i], text: shuffledWrongs[currentWrongs], isCorrect: false });
+                        currentWrongs++;
+                    }
+                }
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: false });
+            }
+            return { question: text, options: optionsObj };
+        }
+
+        function startQuiz() {
+            let numInput = parseInt(document.getElementById('num-questions').value);
+            if (isNaN(numInput) || numInput < 1) numInput = 10;
+            timingModeValue = parseInt(document.getElementById('timing-mode').value);
+
+            generateQuestions(numInput);
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('quiz-main').style.display = 'block';
+            
+            renderSlides();
+            currentSlide = 0;
+            updateNavigation();
+            startTimerIfNeeded();
+        }
+
+        function returnToSetup() {
+            clearInterval(timerInterval);
+            document.getElementById('setup-screen').style.display = 'block';
+            document.getElementById('quiz-main').style.display = 'none';
+            document.getElementById('result-panel').style.display = 'none';
+        }
+
+        function renderSlides() {
+            const container = document.getElementById('slides-container');
+            container.innerHTML = '';
+            questions.forEach((q, index) => {
+                let div = document.createElement('div');
+                div.className = `slide ${index === 0 ? 'active' : ''}`;
+                div.id = `slide-${index}`;
+                let timerHtml = timingModeValue > 0 ? `<span class="timer-display" id="timer-${index}"></span>` : '';
+                
+                let html = `<div class="question-title"><span>Question ${index + 1} / ${questions.length}</span>${timerHtml}</div>`;
+                html += `<p>${q.question}</p><ul class="options-list">`;
+                q.options.forEach((opt, oIndex) => {
+                    html += `<li><label id="label-${index}-${oIndex}"><input type="radio" name="q${index}" value="${opt.isCorrect}"><strong>${opt.label}.</strong>&nbsp; ${opt.text}</label></li>`;
+                });
+                html += `</ul>`;
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function startTimerIfNeeded() {
+            clearInterval(timerInterval);
+            if (timingModeValue > 0) {
+                timeRemaining = timingModeValue;
+                updateTimerUI();
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerUI();
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        if (currentSlide < questions.length - 1) changeSlide(1);
+                        else showResults();
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateTimerUI() {
+            let timerEl = document.getElementById(`timer-${currentSlide}`);
+            if (timerEl) timerEl.innerHTML = `⏱️ ${timeRemaining}s`;
+        }
+
+        function updateNavigation() {
+            document.getElementById('prev-btn').style.display = (currentSlide === 0 || timingModeValue > 0) ? 'none' : 'inline-block';
+            if (currentSlide === questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('submit-btn').style.display = 'inline-block';
+            } else {
+                document.getElementById('next-btn').style.display = timingModeValue > 0 ? 'none' : 'inline-block';
+                document.getElementById('submit-btn').style.display = 'none';
+            }
+        }
+
+        function changeSlide(direction) {
+            document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+            currentSlide += direction;
+            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+            updateNavigation();
+            startTimerIfNeeded();
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            let score = 0;
+            questions.forEach((q, index) => {
+                let selected = document.querySelector(`input[name="q${index}"]:checked`);
+                q.options.forEach((opt, oIndex) => {
+                    let labelEl = document.getElementById(`label-${index}-${oIndex}`);
+                    if (opt.isCorrect) {
+                        labelEl.classList.add('correct');
+                        if(opt.label === 'E' && opt.hiddenCorrectStr) labelEl.innerHTML += ` <span style="color:var(--primary); font-size:0.9em;">(C'était : ${opt.hiddenCorrectStr})</span>`;
+                    } else if (selected && selected.parentNode === labelEl && !opt.isCorrect) {
+                        labelEl.classList.add('incorrect');
+                    }
+                });
+                if (selected && selected.value === "true") score++;
+            });
+
+            document.querySelectorAll('.slide').forEach(s => s.classList.add('active'));
+            document.querySelector('.navigation').style.display = 'none';
+            let resultPanel = document.getElementById('result-panel');
+            resultPanel.style.display = 'block';
+            document.getElementById('score-text').innerHTML = `Votre score est de <strong>${score} / ${questions.length}</strong>.`;
+            document.querySelectorAll('.timer-display').forEach(el => el.style.display = 'none');
+            
+            if (window.MathJax) MathJax.typesetPromise();
+            buildPrintArea();
+        }
+
+        function generateAndPrintPDF() {
+            let numInput = parseInt(document.getElementById('num-questions').value);
+            if (isNaN(numInput) || numInput < 1) numInput = 10;
+            generateQuestions(numInput);
+            buildPrintArea();
+            if (window.MathJax) {
+                MathJax.typesetPromise().then(() => { window.print(); });
+            } else { window.print(); }
+        }
+
+        function buildPrintArea() {
+            const printArea = document.getElementById('print-area');
+            let html = `<h2>QCM : Forme canonique, Inéquations et Algèbre (Corrigé)</h2>`;
+            questions.forEach((q, i) => {
+                html += `<div class="print-question"><p><strong>Question ${i + 1} :</strong> ${q.question}</p><ul class="print-options">`;
+                q.options.forEach(opt => {
+                    let isCorrectClass = opt.isCorrect ? 'class="print-correct-answer"' : '';
+                    let indicator = opt.isCorrect ? '✔️' : '◻️';
+                    let extraInfo = (opt.isCorrect && opt.label === 'E' && opt.hiddenCorrectStr) ? ` <em>(${opt.hiddenCorrectStr})</em>` : '';
+                    html += `<li ${isCorrectClass}>${indicator} <strong>${opt.label}.</strong> ${opt.text} ${extraInfo}</li>`;
+                });
+                html += `</ul></div>`;
+            });
+            printArea.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
