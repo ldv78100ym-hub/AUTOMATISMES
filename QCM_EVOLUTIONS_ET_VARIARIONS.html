@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QCM : Évolutions et variations</title>
+    <title>QCM : Évolutions et variations (avec suivi JSON)</title>
     
     <script>
         MathJax = {
@@ -17,29 +17,44 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
+        /* === VARIABLES MODERNES ET SOBRES === */
         :root {
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --card-bg: #fff;
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --success: #2ecc71;
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #0ea5e9;
+            --secondary-hover: #0284c7;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            line-height: 1.6;
             transition: all 0.3s ease;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Accessibilité : Malvoyants */
         body.mal-voyant {
             --bg-color: #000;
             --text-color: #fff;
+            --text-muted: #ccc;
             --card-bg: #111;
             --primary: #fff;
             --secondary: #ffeb3b;
@@ -47,12 +62,11 @@
             font-weight: bold;
         }
         body.mal-voyant button, body.mal-voyant input, body.mal-voyant select {
-            border: 2px solid #fff;
+            border: 3px solid #fff;
             background-color: #333;
             color: #fff;
         }
 
-        /* Accessibilité : Mal Dys */
         body.mal-dys {
             font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
             letter-spacing: 0.15em;
@@ -63,116 +77,229 @@
         .header-controls {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             cursor: pointer;
             border: none;
-            border-radius: 5px;
+            border-radius: var(--radius-sm);
             background-color: var(--secondary);
             color: #fff;
             font-size: 1rem;
-            transition: background 0.3s;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        button:hover { background-color: #2980b9; }
+        button:hover { 
+            background-color: var(--secondary-hover); 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        button:active { transform: translateY(0); }
 
-        .btn-copyright { background-color: var(--primary); }
-        .btn-copyright:hover { background-color: #1a252f; }
-        .btn-pdf { background-color: #8e44ad; }
-        .btn-pdf:hover { background-color: #732d91; }
+        .btn-primary { background-color: var(--primary); }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-copyright { background-color: #374151; }
+        .btn-copyright:hover { background-color: #1f2937; }
+        .btn-pdf { background-color: #8b5cf6; }
+        .btn-pdf:hover { background-color: #7c3aed; }
+        .btn-danger { background-color: var(--accent); }
+        .btn-danger:hover { background-color: #e11d48; }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #059669; }
 
         .quiz-container {
             max-width: 800px;
             margin: 0 auto;
             background: var(--card-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border: 1px solid #ddd;
+            padding: 40px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
             position: relative;
+        }
+        
+        .quiz-container h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 1.75rem;
         }
 
         .text-center { text-align: center; }
         
-        input[type="number"], select {
-            padding: 10px;
-            font-size: 1.1rem;
-            margin: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        input[type="text"], input[type="number"], select, input[type="file"] {
+            padding: 12px 16px;
+            font-size: 1rem;
+            margin: 8px 4px;
+            border-radius: var(--radius-sm);
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            max-width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            background-color: #fff;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            padding: 25px;
+            background-color: #f8fafc;
+            border-radius: var(--radius-md);
+            border: 1px solid #e2e8f0;
+            text-align: left;
         }
+        .form-group h3 { margin-top: 0; font-size: 1.2rem; color: var(--text-color); }
+        .form-group label { font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 8px; }
+        
+        .info-message {
+            background-color: #f0f9ff;
+            border-left: 4px solid var(--secondary);
+            padding: 15px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            margin-top: 25px;
+            color: var(--text-color);
+        }
+        .info-message strong { color: var(--secondary-hover); }
+        
+        .risk-text {
+            margin-top: 15px;
+            background-color: #fff7ed;
+            border-left: 4px solid var(--warning);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: #9a3412;
+            font-size: 0.9rem;
+        }
+        .risk-text strong { color: #c2410c; }
+
+        body.mal-voyant .form-group { background-color: #222; border-color: #555; }
+        body.mal-voyant .info-message { background-color: #1a1a1a; border-color: var(--secondary); color: #fff; }
+        body.mal-voyant .info-message strong { color: var(--secondary); }
+        body.mal-voyant .risk-text { background-color: #2a1a00; border-color: var(--warning); color: #fff; }
+        body.mal-voyant .risk-text strong { color: var(--warning); }
 
         .slide { display: none; }
-        .slide.active { display: block; animation: fadeIn 0.5s; }
+        .slide.active { display: block; animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .question-title {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            color: var(--primary);
-            border-bottom: 2px solid var(--secondary);
-            padding-bottom: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: var(--text-muted);
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 15px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .slide p {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 30px;
         }
 
-        .timer-display {
-            color: var(--accent);
-            font-weight: bold;
+        .timer-display { 
+            background: #fee2e2; 
+            color: var(--accent); 
+            padding: 6px 12px; 
+            border-radius: 999px; 
+            font-size: 0.9rem; 
         }
 
-        .options-list { list-style-type: none; padding: 0; }
-        .options-list li { margin-bottom: 15px; }
+        .options-list { list-style-type: none; padding: 0; margin: 0; }
+        .options-list li { margin-bottom: 12px; }
 
         .options-list label {
             display: flex;
             align-items: center;
             cursor: pointer;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: var(--bg-color);
-            transition: background 0.2s;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            background-color: #f9fafb;
+            transition: all 0.2s ease;
+            font-size: 1.1rem;
         }
 
-        .options-list label:hover {
-            background-color: #e0f7fa;
-            color: #000;
+        .options-list label:hover { 
+            background-color: #f0f9ff; 
+            border-color: var(--secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .options-list input[type="radio"] { 
+            margin-right: 15px; 
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
-        .options-list input[type="radio"] {
-            margin-right: 15px;
-            transform: scale(1.2);
+        .correct { 
+            background-color: #d1fae5 !important;
+            color: #065f46 !important; 
+            font-weight: 700; 
+            border-color: var(--success) !important; 
+        }
+        .incorrect { 
+            background-color: #ffe4e6 !important;
+            color: #9f1239 !important; 
+            text-decoration: line-through; 
+            border-color: var(--accent) !important; 
+            opacity: 0.7;
         }
 
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
+        .navigation { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 40px; 
+            padding-top: 20px;
+            border-top: 1px solid #f3f4f6;
         }
 
-        .result-panel { display: none; text-align: center; }
-        .correct { color: var(--success) !important; font-weight: bold; border-color: var(--success) !important; }
-        .incorrect { color: var(--accent) !important; text-decoration: line-through; border-color: var(--accent) !important; }
+        .result-panel { display: none; }
+        #score-text { font-size: 1.5rem; margin-bottom: 30px; }
+        
+        .stats-box {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 30px 0;
+            color: var(--text-color);
+            text-align: left;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+        }
+        .stats-box h3 { color: var(--primary); margin-top: 0; }
+        body.mal-voyant .stats-box { background: #333; color: #fff; border-color: #555; }
 
-        /* Popup Droits d'auteur */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -180,38 +307,34 @@
         .modal-content {
             background: var(--card-bg);
             color: var(--text-color);
-            padding: 30px;
-            border-radius: 8px;
+            padding: 40px;
+            border-radius: var(--radius-lg);
             max-width: 600px;
             line-height: 1.6;
             position: relative;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease-out;
         }
-        .close-btn {
-            position: absolute;
-            top: 10px; right: 15px;
-            background: transparent;
-            color: var(--accent);
-            font-size: 1.5rem;
-            padding: 0;
-            border: none;
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
+        .close-btn { 
+            position: absolute; top: 15px; right: 20px; 
+            background: transparent; color: var(--text-muted); 
+            font-size: 1.8rem; padding: 0; border: none; box-shadow: none;
+        }
+        .close-btn:hover { color: var(--accent); background: transparent; transform: scale(1.1); box-shadow: none; }
 
-        /* Impression PDF */
-        #print-area { display: none; }
+        #print-area { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
-            #print-area {
-                display: block;
-                position: absolute;
-                left: 0; top: 0; width: 100%;
-                color: #000;
-                background: #fff;
-            }
-            .print-question { margin-bottom: 30px; page-break-inside: avoid; }
-            .print-options { list-style-type: none; padding-left: 0; }
-            .print-options li { margin-bottom: 5px; }
-            .print-correct-answer { font-weight: bold; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; font-size: 12pt; }
+            .print-question { margin-bottom: 30px; page-break-inside: avoid; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+            .print-options { list-style-type: none; padding-left: 0; margin-top: 10px; }
+            .print-options li { margin-bottom: 8px; }
+            .print-correct-answer { font-weight: bold; color: #000; }
         }
     </style>
 </head>
@@ -226,7 +349,7 @@
     <div id="copyright-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="document.getElementById('copyright-modal').style.display='none'">&times;</button>
-            <h3>⚖️ Droits d'Auteur et Licence d'Utilisation</h3>
+            <h3 style="color: var(--primary); margin-top: 0;">⚖️ Droits d'Auteur et Licence d'Utilisation</h3>
             <p><strong>Auteur :</strong> Yann Merdy (yann.merdy@gmail.com) - Avril 2026</p>
             <p><strong>Licence d'Utilisation Non Commerciale</strong><br>
             Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application ('Évolutions et variations') sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
@@ -240,14 +363,35 @@
 
     <div id="setup-screen" class="quiz-container text-center">
         <h2>Paramétrage du QCM : Évolutions et variations</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Pourcentages, coefficients multiplicateurs et indices</p>
         
         <div class="form-group">
-            <label for="num-questions">Nombre de questions :</label>
-            <input type="number" id="num-questions" min="1" max="100" value="5">
+            <h3>👤 Profil de l'élève</h3>
+            <label for="json-upload">Charger un profil existant (Fichier JSON) :</label>
+            <input type="file" id="json-upload" accept=".json" onchange="loadProfile(event)">
+            <div style="margin: 15px 0; color: var(--text-muted); font-weight: bold;">— OU —</div>
+            <label>Créer un nouveau profil :</label>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <input type="text" id="student-prenom" placeholder="Prénom de l'élève">
+                <input type="text" id="student-nom" placeholder="Nom de famille">
+            </div>
+
+            <div class="info-message">
+                <strong>💡 Pourquoi utiliser un fichier de profil ?</strong><br>
+                Ce fichier agit comme ton carnet de bord. Il enregistre tes scores et détecte automatiquement les types d'exercices où tu rencontres des difficultés, pour t'aider à progresser de séance en séance.
+                <div class="risk-text">
+                    <strong>⚠️ Protection de tes données personnelles :</strong><br>
+                    Tes informations (nom, prénom et résultats) ne sont enregistrées <em>que</em> dans ce fichier, aucune donnée n'est envoyée sur Internet. Si tu laisses ce fichier sur un ordinateur de l'école, d'autres élèves pourraient voir tes notes. <strong>Pense toujours à l'enregistrer sur ta propre clé USB</strong> et à le supprimer de l'ordinateur à la fin de l'heure. Si tu perds ton fichier, ton historique sera effacé.
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="timing-mode">Mode de passage :</label>
+            <h3>⚙️ Options de la session</h3>
+            <label for="num-questions">Nombre de questions :</label>
+            <input type="number" id="num-questions" min="1" max="50" value="5" style="width: 100px;">
+            
+            <label for="timing-mode" style="margin-top: 15px;">Mode de passage :</label>
             <select id="timing-mode">
                 <option value="0">Manuel (L'enseignant passe les diapos)</option>
                 <option value="30">Minuté : 30 secondes par question</option>
@@ -256,9 +400,7 @@
             </select>
         </div>
 
-        <br>
-        <button onclick="startQuiz()">Générer et Démarrer l'animation HTML</button>
-        <br><br>
+        <button class="btn-primary" onclick="startQuiz()" style="width: 100%; margin-bottom: 15px; font-size: 1.1rem; padding: 15px;">Démarrer l'évaluation HTML</button>
         <button class="btn-pdf" onclick="generateAndPrintPDF()">🖨️ Générer PDF (Sujet + Correction)</button>
     </div>
 
@@ -266,31 +408,101 @@
         <div id="slides-container"></div>
 
         <div class="navigation">
-            <button id="prev-btn" onclick="changeSlide(-1)" style="display:none;">Précédent</button>
-            <button id="next-btn" onclick="changeSlide(1)">Suivant</button>
-            <button id="submit-btn" onclick="showResults()" style="display:none; background-color: var(--success);">Valider</button>
+            <button id="prev-btn" onclick="changeSlide(-1)" style="display:none; background-color: #9ca3af;">Précédent</button>
+            <button id="next-btn" class="btn-primary" onclick="changeSlide(1)">Suivant</button>
+            <button id="submit-btn" class="btn-success" onclick="showResults()" style="display:none;">Valider mes réponses</button>
         </div>
 
-        <div id="result-panel" class="result-panel">
-            <h2>Résultats</h2>
+        <div id="result-panel" class="result-panel text-center">
+            <h2>Bilan de la séance</h2>
             <p id="score-text"></p>
-            <button onclick="returnToSetup()">Générer un nouveau QCM</button>
-            <button class="btn-pdf" onclick="window.print()">🖨️ Imprimer la correction</button>
+            
+            <div id="stats-display" class="stats-box"></div>
+
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+                <button class="btn-primary" onclick="returnToSetup()">Nouveau QCM</button>
+                <button class="btn-pdf" onclick="window.print()">🖨️ Imprimer le bilan</button>
+                <button class="btn-danger" onclick="deleteProfile()">🗑️ Effacer mes données</button>
+            </div>
         </div>
     </div>
 
     <div id="print-area"></div>
 
     <script>
-        // Utilitaires mathématiques
+        // ---------- GESTION DU PROFIL JSON ----------
+        let userProfile = null;
+
+        function loadProfile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    userProfile = JSON.parse(e.target.result);
+                    document.getElementById('student-prenom').value = userProfile.prenom || '';
+                    document.getElementById('student-nom').value = userProfile.nom || '';
+                    alert("Profil chargé avec succès : " + userProfile.prenom + " " + userProfile.nom);
+                } catch(err) {
+                    alert("Erreur lors de la lecture du fichier JSON.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function initProfileIfNeeded() {
+            let prenom = document.getElementById('student-prenom').value.trim();
+            let nom = document.getElementById('student-nom').value.trim();
+            
+            if (!userProfile && (prenom === "" || nom === "")) {
+                alert("Veuillez saisir votre Nom et Prénom pour le suivi, ou charger un fichier JSON existant.");
+                return false;
+            }
+
+            if (!userProfile) {
+                userProfile = {
+                    prenom: prenom,
+                    nom: nom,
+                    sessions: [],
+                    globalErrors: {}
+                };
+            } else {
+                userProfile.prenom = prenom || userProfile.prenom;
+                userProfile.nom = nom || userProfile.nom;
+            }
+            return true;
+        }
+
+        function downloadUpdatedProfile() {
+            if (!userProfile) return;
+            let filename = `YM_QCM_EVOL_${userProfile.nom}_${userProfile.prenom}`.replace(/\s+/g, '_') + ".json";
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userProfile, null, 4));
+            
+            let downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", filename);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function deleteProfile() {
+            if(confirm("Attention : Cela supprimera votre progression de cette page. Pensez également à effacer le fichier JSON de votre ordinateur. Continuer ?")) {
+                userProfile = null;
+                document.getElementById('student-prenom').value = '';
+                document.getElementById('student-nom').value = '';
+                document.getElementById('json-upload').value = '';
+                returnToSetup();
+            }
+        }
+
+        // ---------- UTILITAIRES MATHÉMATIQUES ----------
         function formatNumber(num) {
             if (Number.isInteger(num)) return num.toString();
-            // Maximum 4 décimales, supprime les zéros inutiles
             return parseFloat(num.toFixed(4)).toString().replace('.', ',');
         }
         function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-        // Sécurise la génération de fausses réponses uniques
         function getSafeWrongs(ansStr, rawWrongsArr, suffix = "") {
             let unique = [];
             for (let val of rawWrongsArr) {
@@ -311,15 +523,9 @@
             return unique.slice(0, 4);
         }
 
-        let currentSlide = 0;
-        let questions = [];
-        let timerInterval = null;
-        let timeRemaining = 0;
-        let timingModeValue = 0;
-
-        // NOUVEAUX GÉNÉRATEURS : Évolutions et variations
+        // ---------- GÉNÉRATEURS DE QUESTIONS (avec type et contexte) ----------
         const generators = [
-            // 1. Passer d'une formulation additive à multiplicative
+            // Type 0 : Passer d'une formulation additive à multiplicative
             function() {
                 let t = randInt(1, 99);
                 let isIncrease = Math.random() < 0.5;
@@ -329,10 +535,9 @@
                     `Diminuer une valeur de ${t} % revient à la multiplier par quel nombre ?`;
                 let ansStr = formatNumber(ans);
                 let wrongs = getSafeWrongs(ansStr, [1 + t/100, 1 - t/100, t/100, 1 + t/10, 1 - t/10, t]);
-                return { text, ansStr, wrongs };
+                return { text, ansStr, wrongs, type: 0, context: "Coefficient multiplicateur" };
             },
-            
-            // 2. Appliquer un taux d'évolution pour calculer valeur finale ou initiale
+            // Type 1 : Appliquer un taux pour calculer valeur finale ou initiale
             function() {
                 let t = randInt(5, 50);
                 let isIncrease = Math.random() < 0.5;
@@ -350,10 +555,9 @@
                     [Vi + t, Vi - t, Vi * (1 + t/100), Vi * (1 - t/100), Vi * (t/100)] :
                     [Vf - t, Vf + t, Vf * (1 + t/100), Vf * (1 - t/100), Vf / (t/100)];
                 let wrongs = getSafeWrongs(ansStr, wrongsRaw, " €");
-                return { text, ansStr, wrongs };
+                return { text, ansStr, wrongs, type: 1, context: "Calcul valeur finale/initiale" };
             },
-            
-            // 3. Calculer un taux d'évolution et l'exprimer en pourcentage
+            // Type 2 : Calculer un taux d'évolution en %
             function() {
                 let Vi = randInt(10, 150) * 10;
                 let t = randInt(5, 50) * (Math.random() < 0.5 ? 1 : -1);
@@ -361,10 +565,9 @@
                 let text = `Une valeur passe de ${Vi} à ${formatNumber(Vf)}. Quel est le taux d'évolution associé ?`;
                 let ansStr = formatNumber(t) + " %";
                 let wrongs = getSafeWrongs(ansStr, [-t, (Vf/Vi)*100, ((Vi/Vf)-1)*100, Vf-Vi, Math.abs(t) + 10], " %");
-                return { text, ansStr, wrongs };
+                return { text, ansStr, wrongs, type: 2, context: "Calcul du taux d'évolution" };
             },
-            
-            // 4. Interpréter un indice base 100 / calculer un indice
+            // Type 3 : Interpréter / calculer un indice base 100
             function() {
                 let V0 = randInt(50, 200);
                 let t = randInt(5, 80);
@@ -374,10 +577,9 @@
                 let text = `Une grandeur a pour valeur ${V0} en 2020 (indice de base 100). En 2025, sa valeur est de ${formatNumber(V1)}. Quel est l'indice en 2025 ?`;
                 let ansStr = formatNumber(100 + t);
                 let wrongs = getSafeWrongs(ansStr, [100 - t, (V1/V0), Math.abs(V1 - V0), 100 + Math.abs(t)/10, t]);
-                return { text, ansStr, wrongs };
+                return { text, ansStr, wrongs, type: 3, context: "Indice base 100" };
             },
-            
-            // 5. Calculer le taux d'évolution équivalent à plusieurs évolutions successives
+            // Type 4 : Taux global après évolutions successives
             function() {
                 let t1 = randInt(5, 30) * (Math.random() < 0.5 ? 1 : -1);
                 let t2 = randInt(5, 30) * (Math.random() < 0.5 ? 1 : -1);
@@ -386,29 +588,72 @@
                 let text = `Une grandeur subit une évolution de ${t1 > 0 ? '+'+t1 : t1} % suivie d'une évolution de ${t2 > 0 ? '+'+t2 : t2} %. Quel est le taux d'évolution global équivalent ?`;
                 let ansStr = formatNumber(t_global) + " %";
                 let wrongs = getSafeWrongs(ansStr, [t1 + t2, (t1+t2)/2, Math.abs(t1-t2), t_global * -1, t1 * t2], " %");
-                return { text, ansStr, wrongs };
+                return { text, ansStr, wrongs, type: 4, context: "Évolutions successives" };
             },
-            
-            // 6. Calculer un taux d'évolution réciproque
+            // Type 5 : Taux d'évolution réciproque
             function() {
                 let t = randInt(10, 50) * (Math.random() < 0.5 ? 1 : -1);
                 let t_recip = (1 / (1 + t/100) - 1) * 100;
                 let text = `Le prix d'un produit subit une évolution de ${t > 0 ? '+'+t : t} %. Quel taux d'évolution permet de retrouver exactement la valeur initiale ?`;
                 let ansStr = formatNumber(t_recip) + " %";
                 let wrongs = getSafeWrongs(ansStr, [-t, t, 1/t, -t_recip, t_recip + 5], " %");
-                return { text, ansStr, wrongs };
+                return { text, ansStr, wrongs, type: 5, context: "Taux réciproque" };
             }
         ];
 
+        // ---------- VARIABLES GLOBALES ----------
+        let currentSlide = 0;
+        let questions = [];
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let timingModeValue = 0;
+
+        // Pondération basée sur l'historique des erreurs
+        function getWeightedRandomType() {
+            if (!userProfile || !userProfile.globalErrors) return randInt(0, generators.length - 1);
+            
+            // Calcul des stats par type
+            let typeStats = {};
+            for (let i = 0; i < generators.length; i++) typeStats[i] = { correct: 0, total: 0 };
+            
+            if (userProfile.sessions) {
+                userProfile.sessions.forEach(session => {
+                    if (session.details) {
+                        session.details.forEach(detail => {
+                            if (detail.type !== undefined) {
+                                typeStats[detail.type].total++;
+                                if (detail.correct) typeStats[detail.type].correct++;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            let totalQuestions = Object.values(typeStats).reduce((sum, s) => sum + s.total, 0);
+            if (totalQuestions === 0) return randInt(0, generators.length - 1);
+            
+            let rates = [];
+            for (let i = 0; i < generators.length; i++) {
+                rates[i] = typeStats[i].total > 0 ? typeStats[i].correct / typeStats[i].total : 0.5;
+            }
+            
+            let weights = rates.map(r => Math.max(0.1, 1 - r));
+            let sum = weights.reduce((a,b) => a+b, 0);
+            let rand = Math.random() * sum;
+            let cumul = 0;
+            for (let i = 0; i < weights.length; i++) {
+                cumul += weights[i];
+                if (rand <= cumul) return i;
+            }
+            return generators.length - 1;
+        }
+
         function generateQuestions(numQuestions) {
             questions = [];
-            let generatedTexts = new Set(); // Pour garantir l'unicité des questions
+            let generatedTexts = new Set(); 
             
-            // Répartition équitable des bonnes réponses (A=0, B=1, C=2, D=3, Autre=4)
             let correctPositions = [];
-            for (let i = 0; i < numQuestions; i++) {
-                correctPositions.push(i % 5);
-            }
+            for (let i = 0; i < numQuestions; i++) correctPositions.push(i % 5);
             correctPositions.sort(() => Math.random() - 0.5);
 
             for (let i = 0; i < numQuestions; i++) {
@@ -416,9 +661,10 @@
                 let isUnique = false;
                 let safeguard = 0;
 
-                // Forcer l'unicité
                 while (!isUnique && safeguard < 200) {
-                    genData = generators[randInt(0, generators.length - 1)]();
+                    let typeIdx = getWeightedRandomType();
+                    genData = generators[typeIdx]();
+                    
                     if (!generatedTexts.has(genData.text)) {
                         generatedTexts.add(genData.text);
                         isUnique = true;
@@ -426,26 +672,23 @@
                     safeguard++;
                 }
 
-                let targetPos = correctPositions[i];
-                questions.push(buildSlideData(genData.text, genData.ansStr, genData.wrongs, targetPos));
+                questions.push(buildSlideData(genData, correctPositions[i]));
             }
         }
 
-        function buildSlideData(text, correctStr, wrongArr, targetPos) {
+        function buildSlideData(genData, targetPos) {
             let letters = ['A', 'B', 'C', 'D'];
             let optionsObj = [];
-            let shuffledWrongs = wrongArr.sort(() => Math.random() - 0.5);
+            let shuffledWrongs = genData.wrongs.sort(() => Math.random() - 0.5);
 
             if (targetPos === 4) {
-                for (let i = 0; i < 4; i++) {
-                    optionsObj.push({ label: letters[i], text: shuffledWrongs[i], isCorrect: false });
-                }
-                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: true, hiddenCorrectStr: correctStr });
+                for (let i = 0; i < 4; i++) optionsObj.push({ label: letters[i], text: shuffledWrongs[i], isCorrect: false });
+                optionsObj.push({ label: 'E', text: 'Autre', isCorrect: true, hiddenCorrectStr: genData.ansStr });
             } else {
                 let currentWrongs = 0;
                 for (let i = 0; i < 4; i++) {
                     if (i === targetPos) {
-                        optionsObj.push({ label: letters[i], text: correctStr, isCorrect: true });
+                        optionsObj.push({ label: letters[i], text: genData.ansStr, isCorrect: true });
                     } else {
                         optionsObj.push({ label: letters[i], text: shuffledWrongs[currentWrongs], isCorrect: false });
                         currentWrongs++;
@@ -453,14 +696,18 @@
                 }
                 optionsObj.push({ label: 'E', text: 'Autre', isCorrect: false });
             }
-
-            return { question: text, options: optionsObj };
+            return { 
+                question: genData.text, 
+                options: optionsObj, 
+                type: genData.type,
+                context: genData.context
+            };
         }
 
         function startQuiz() {
-            let numInput = parseInt(document.getElementById('num-questions').value);
-            if (isNaN(numInput) || numInput < 1) numInput = 5;
-            
+            if (!initProfileIfNeeded()) return;
+
+            let numInput = parseInt(document.getElementById('num-questions').value) || 5;
             timingModeValue = parseInt(document.getElementById('timing-mode').value);
 
             generateQuestions(numInput);
@@ -484,36 +731,28 @@
         function renderSlides() {
             const container = document.getElementById('slides-container');
             container.innerHTML = '';
-
             questions.forEach((q, index) => {
                 let div = document.createElement('div');
                 div.className = `slide ${index === 0 ? 'active' : ''}`;
                 div.id = `slide-${index}`;
-
-                let timerHtml = timingModeValue > 0 ? `<span class="timer-display" id="timer-${index}"></span>` : '';
+                let timerHtml = timingModeValue > 0 ? `<div class="timer-display" id="timer-${index}"></div>` : '';
                 
-                let html = `<div class="question-title">
-                                <span>Question ${index + 1} / ${questions.length}</span>
-                                ${timerHtml}
-                            </div>`;
+                let html = `
+                    <div class="question-title">
+                        <span>Question ${index + 1} <span style="color:var(--text-muted);font-weight:normal;">/ ${questions.length}</span></span>
+                        ${timerHtml}
+                    </div>
+                `;
                 html += `<p>${q.question}</p><ul class="options-list">`;
-
                 q.options.forEach((opt, oIndex) => {
-                    html += `
-                        <li>
-                            <label id="label-${index}-${oIndex}">
+                    html += `<li><label id="label-${index}-${oIndex}">
                                 <input type="radio" name="q${index}" value="${opt.isCorrect}">
-                                <strong>${opt.label}.</strong>&nbsp; ${opt.text}
-                            </label>
-                        </li>
-                    `;
+                                <strong style="color:var(--primary); margin-right:8px;">${opt.label}.</strong> ${opt.text}
+                            </label></li>`;
                 });
-
-                html += `</ul>`;
-                div.innerHTML = html;
+                div.innerHTML = html + `</ul>`;
                 container.appendChild(div);
             });
-
             if (window.MathJax) MathJax.typesetPromise();
         }
 
@@ -527,26 +766,19 @@
                     updateTimerUI();
                     if (timeRemaining <= 0) {
                         clearInterval(timerInterval);
-                        if (currentSlide < questions.length - 1) {
-                            changeSlide(1);
-                        } else {
-                            showResults();
-                        }
+                        if (currentSlide < questions.length - 1) changeSlide(1); else showResults();
                     }
                 }, 1000);
             }
         }
 
         function updateTimerUI() {
-            let timerEl = document.getElementById(`timer-${currentSlide}`);
-            if (timerEl) {
-                timerEl.innerHTML = `⏱️ ${timeRemaining}s`;
-            }
+            let el = document.getElementById(`timer-${currentSlide}`);
+            if (el) el.innerHTML = `⏳ ${timeRemaining}s`;
         }
 
         function updateNavigation() {
             document.getElementById('prev-btn').style.display = (currentSlide === 0 || timingModeValue > 0) ? 'none' : 'inline-block';
-            
             if (currentSlide === questions.length - 1) {
                 document.getElementById('next-btn').style.display = 'none';
                 document.getElementById('submit-btn').style.display = 'inline-block';
@@ -567,78 +799,132 @@
         function showResults() {
             clearInterval(timerInterval);
             let score = 0;
+            let sessionErrors = {};
+            let sessionDetails = [];
+
             questions.forEach((q, index) => {
                 let selected = document.querySelector(`input[name="q${index}"]:checked`);
+                let isCorrectAnswered = (selected && selected.value === "true");
                 
+                if (isCorrectAnswered) score++;
+                else {
+                    sessionErrors[q.context] = (sessionErrors[q.context] || 0) + 1;
+                    if (!userProfile.globalErrors) userProfile.globalErrors = {};
+                    userProfile.globalErrors[q.context] = (userProfile.globalErrors[q.context] || 0) + 1;
+                }
+
+                sessionDetails.push({
+                    type: q.type,
+                    context: q.context,
+                    correct: isCorrectAnswered
+                });
+
                 q.options.forEach((opt, oIndex) => {
                     let labelEl = document.getElementById(`label-${index}-${oIndex}`);
                     if (opt.isCorrect) {
                         labelEl.classList.add('correct');
                         if(opt.label === 'E' && opt.hiddenCorrectStr) {
-                            labelEl.innerHTML += ` <span style="color:var(--primary); font-size:0.9em;">(C'était : ${opt.hiddenCorrectStr})</span>`;
+                            labelEl.innerHTML += ` <span style="color:var(--primary); font-size:0.9em; margin-left:10px;">(C'était : ${opt.hiddenCorrectStr})</span>`;
                         }
                     } else if (selected && selected.parentNode === labelEl && !opt.isCorrect) {
                         labelEl.classList.add('incorrect');
                     }
                 });
-
-                if (selected && selected.value === "true") score++;
             });
+
+            let today = new Date();
+            if (!userProfile.sessions) userProfile.sessions = [];
+            userProfile.sessions.push({
+                date: today.toLocaleDateString() + ' ' + today.toLocaleTimeString(),
+                score: score,
+                total: questions.length,
+                errorsByContext: sessionErrors,
+                details: sessionDetails
+            });
+
+            downloadUpdatedProfile();
 
             document.querySelectorAll('.slide').forEach(s => s.classList.add('active'));
             document.querySelector('.navigation').style.display = 'none';
+            document.getElementById('result-panel').style.display = 'block';
             
-            let resultPanel = document.getElementById('result-panel');
-            resultPanel.style.display = 'block';
-            document.getElementById('score-text').innerHTML = `Votre score est de <strong>${score} / ${questions.length}</strong>.`;
+            let resultText = score === questions.length ? "Parfait ! 🏆" : "Bilan de la séance :";
+            document.getElementById('score-text').innerHTML = `${resultText}<br><strong style="font-size:2rem; color:var(--primary);">${score} / ${questions.length}</strong>`;
             
-            // Masquer les chronos
             document.querySelectorAll('.timer-display').forEach(el => el.style.display = 'none');
             
-            if (window.MathJax) MathJax.typesetPromise();
+            buildStatsDisplay();
             buildPrintArea();
+
+            if (window.MathJax) {
+                MathJax.typesetClear([document.getElementById('print-area')]);
+                MathJax.typesetPromise();
+            }
         }
 
-        // --- GESTION DE L'IMPRESSION PDF ---
-        function generateAndPrintPDF() {
-            let numInput = parseInt(document.getElementById('num-questions').value);
-            if (isNaN(numInput) || numInput < 1) numInput = 5;
+        function buildStatsDisplay() {
+            let statsHtml = `<h3>📈 Suivi de progression</h3>`;
+            statsHtml += `<ul style="list-style-type:none; padding:0;">`;
             
-            generateQuestions(numInput);
-            buildPrintArea();
-            
-            // Attendre le rendu MathJax avant d'imprimer
-            if (window.MathJax) {
-                MathJax.typesetPromise().then(() => {
-                    window.print();
-                });
+            let recentSessions = userProfile.sessions.slice(-5);
+            recentSessions.forEach((s, i) => {
+                let sessionNum = userProfile.sessions.length - recentSessions.length + i + 1;
+                let pct = Math.round((s.score / s.total) * 100);
+                statsHtml += `<li style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                                <strong>Séance ${sessionNum}</strong> <span style="color:var(--text-muted); font-size:0.9em;">(${s.date})</span> : 
+                                <span style="float:right; font-weight:bold; color: ${pct>=50 ? 'var(--success)' : 'var(--accent)'}">${s.score}/${s.total} (${pct}%)</span>
+                              </li>`;
+            });
+            statsHtml += `</ul>`;
+
+            let errorKeys = Object.keys(userProfile.globalErrors || {});
+            if (errorKeys.length > 0) {
+                errorKeys.sort((a, b) => userProfile.globalErrors[b] - userProfile.globalErrors[a]);
+                statsHtml += `<h4 style="margin-top:25px; color:var(--text-color);">⚠️ Points de vigilance (Cumul) :</h4><ul style="padding-left: 20px;">`;
+                for(let i=0; i<Math.min(3, errorKeys.length); i++) {
+                    statsHtml += `<li>Erreurs sur <strong>${errorKeys[i]}</strong> : ${userProfile.globalErrors[errorKeys[i]]} fois</li>`;
+                }
+                statsHtml += `</ul>`;
             } else {
-                window.print();
+                statsHtml += `<p style="color:var(--success); font-weight:bold; margin-top:20px;">Aucune erreur cumulée pour le moment ! Excellent travail.</p>`;
+            }
+
+            document.getElementById('stats-display').innerHTML = statsHtml;
+        }
+
+        function generateAndPrintPDF() {
+            let numInput = parseInt(document.getElementById('num-questions').value) || 5;
+            // Génération sans pondération pour le PDF
+            let tempProfile = userProfile;
+            userProfile = null;
+            generateQuestions(numInput);
+            userProfile = tempProfile;
+            buildPrintArea();
+            if (window.MathJax) {
+                MathJax.typesetClear([document.getElementById('print-area')]);
+                MathJax.typesetPromise([document.getElementById('print-area')]).then(() => {
+                    setTimeout(() => { window.print(); }, 500);
+                });
+            } else { 
+                setTimeout(() => { window.print(); }, 500); 
             }
         }
 
         function buildPrintArea() {
             const printArea = document.getElementById('print-area');
             let html = `<h2>QCM : Évolutions et variations (Corrigé)</h2>`;
-            
             questions.forEach((q, i) => {
-                html += `<div class="print-question">
-                            <p><strong>Question ${i + 1} :</strong> ${q.question}</p>
-                            <ul class="print-options">`;
-                
+                html += `<div class="print-question"><p><strong>Question ${i + 1} :</strong> ${q.question}</p><ul class="print-options">`;
                 q.options.forEach(opt => {
                     let isCorrectClass = opt.isCorrect ? 'class="print-correct-answer"' : '';
                     let indicator = opt.isCorrect ? '✔️' : '◻️';
                     let extraInfo = (opt.isCorrect && opt.label === 'E' && opt.hiddenCorrectStr) ? ` <em>(${opt.hiddenCorrectStr})</em>` : '';
-                    
                     html += `<li ${isCorrectClass}>${indicator} <strong>${opt.label}.</strong> ${opt.text} ${extraInfo}</li>`;
                 });
-                
                 html += `</ul></div>`;
             });
             printArea.innerHTML = html;
         }
-
     </script>
 </body>
 </html>
