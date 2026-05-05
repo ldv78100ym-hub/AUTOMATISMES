@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Exercices aléatoires - Mathématiques</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'no-mathjax'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        :root {
+            --bg-body: #f1f5f9;
+            --text-main: #0f172a;
+            --bg-card: #ffffff;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --border: #cbd5e1;
+            --font-main: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        /* Mode DYS / Malvoyant */
+        body.mode-dys {
+            --bg-body: #fffdeb;
+            --text-main: #000000;
+            --bg-card: #ffffff;
+            --primary: #1d4ed8;
+            --border: #000000;
+            --font-main: 'Arial', 'OpenDyslexic', sans-serif;
+            font-size: 1.25rem;
+            letter-spacing: 0.08em;
+            word-spacing: 0.2em;
+            line-height: 1.8;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--text-main); margin-bottom: 1.5rem; }
+        
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        button:hover { background: var(--primary-hover); }
+        button.secondary { background: #475569; }
+        button.secondary:hover { background: #334155; }
+        button.success { background: #10b981; }
+        button.success:hover { background: #059669; }
+
+        .exercice-grid { display: flex; flex-direction: column; gap: 2rem; }
+        
+        .card { 
+            background: var(--bg-card); 
+            border-radius: 1.5rem; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); 
+            border: 1px solid var(--border);
+            overflow: hidden; 
+        }
+        .card-header { background: #2d3b4f; color: white; padding: 0.8rem 1.5rem; font-size: 1.2rem; font-weight: 600; }
+        .card-body { padding: 1.5rem; }
+        .enonce { background: #f8fafc; padding: 1.2rem; border-radius: 1rem; margin-bottom: 1.2rem; border-left: 5px solid var(--primary); }
+        
+        /* Conteneur d'arbre avec étiquettes flottantes responsives */
+        .arbre-wrapper { 
+            position: relative; 
+            background: #ffffff; 
+            border: 1px solid var(--border); 
+            border-radius: 1rem; 
+            margin: 1rem auto; 
+            overflow: hidden; 
+            aspect-ratio: 650 / 360; 
+            max-width: 650px; 
+        }
+        canvas { display: block; width: 100%; height: 100%; background: #ffffff; }
+        .etiquette {
+            position: absolute; white-space: nowrap; font-size: 0.9rem; pointer-events: none;
+            transform: translate(-50%, -50%); background: rgba(255,255,240,0.9);
+            padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border);
+        }
+
+        /* Champs élèves */
+        .student-input-area {
+            background: #e0f2fe; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem;
+        }
+        .student-input-area input[type="text"],
+        .student-input-area textarea {
+            padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border); margin: 0.5rem 0; width: 100%; 
+            font-family: var(--font-main); font-size: 1rem;
+        }
+        .student-input-area input[type="text"] { max-width: 300px; }
+        .student-input-area textarea { resize: vertical; min-height: 60px; }
+        
+        .field-group { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed #bae6fd; }
+        .field-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .field-label { display: block; font-weight: 600; margin-bottom: 0.2rem; color: #0284c7; }
+
+        /* Solution masquée sans display:none pour MathJax */
+        .solution { 
+            max-height: 0; opacity: 0; overflow: hidden; 
+            background: #fef9e3; border-radius: 1rem; border-left: 6px solid #eab308;
+            transition: opacity 0.3s ease; margin-top: 0; padding: 0 1rem;
+        }
+        .solution.show { max-height: 5000px; opacity: 1; padding: 1rem; margin-top: 1rem; }
+
+        table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
+        td, th { border: 1px solid var(--border); padding: 0.5rem; text-align: center; }
+        th { background: #eef2ff; color: #000; }
+
+        /* Modal Droits d'auteur */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--bg-card); padding: 2rem; border-radius: 1rem; max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📐 Exercices aléatoires - Entraînement</h1>
+    
+    <div class="toolbar">
+        <button class="secondary" onclick="document.body.classList.toggle('mode-dys')">👁️ Mode Accessibilité (Dys/Malvoyant)</button>
+        <button class="secondary" onclick="window.print()">🖨️ Générer PDF (avec corrections)</button>
+        <button class="success" onclick="exporterJSON()">💾 Valider et Exporter JSON</button>
+        <button class="secondary" onclick="document.getElementById('modal-droits').classList.add('active')">⚖️ Droits d'auteur</button>
+    </div>
+
+    <div class="exercice-grid" id="exercices-root"></div>
+</div>
+
+<!-- Modal Droits d'auteur -->
+<div class="modal-overlay" id="modal-droits">
+    <div class="modal-content">
+        <h2>⚖️ Droits d'Auteur et Licence d'Utilisation</h2>
+        <p><strong>Auteur :</strong> Yann Merdy (yann.merdy@gmail.com) - mai 2026</p>
+        <p><strong>Licence d'Utilisation Non Commerciale</strong><br>
+        Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application ('Exercices de Mathématiques') sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
+        <p><strong>Conditions :</strong><br>
+        - Utilisation Privée et Éducative (Autorisée) : Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu uniquement à des fins personnelles, éducatives et non lucratives.<br>
+        - Utilisation Commerciale (Interdite) : Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins commerciales, lucratives ou professionnelles est strictement interdite sans un accord écrit préalable et explicite de l'auteur.</p>
+        <p><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</p>
+        <p>Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
+        <button onclick="document.getElementById('modal-droits').classList.remove('active')" style="margin-top: 1rem;">Fermer</button>
+    </div>
+</div>
+
+<script>
+    const donneesCorrection = {};
+
+    (function() {
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function randFloat(min, max, decimals = 2) { return parseFloat((min + Math.random() * (max - min)).toFixed(decimals)); }
+        function randNonZeroInt(min, max) { let v; do { v = randInt(min, max); } while(v === 0); return v; }
+        function pgcd(a,b) { a = Math.abs(a); b = Math.abs(b); while(b !== 0) { let t = b; b = a % b; a = t; } return a; }
+        function simplifierFraction(num, den) {
+            if (den === 0) return "non défini";
+            let signe = (num * den < 0) ? "-" : "";
+            let a = Math.abs(num), b = Math.abs(den);
+            let g = pgcd(a, b);
+            a /= g; b /= g;
+            if (b === 1) return signe + a;
+            return `${signe}\\dfrac{${a}}{${b}}`;
+        }
+
+        function genererDonneesValides() {
+            let a = randNonZeroInt(-8, 8), b = randInt(-12, 12);
+            let a2 = randNonZeroInt(-8, 8), b2 = randInt(-12, 12);
+            let a3 = randNonZeroInt(-6, 6), b3 = randNonZeroInt(-5, 5), c3 = randInt(-7, 7), d3 = randNonZeroInt(-5, 5);
+            let a4 = randNonZeroInt(-4, 4), b4 = randNonZeroInt(-4, 4);
+            
+            let ex6 = (function() {
+                let pA1 = randFloat(0.25, 0.75, 2);
+                let pA2_sachantA1 = randFloat(0.3, 0.8, 2);
+                let pB2_sachantB1 = randFloat(0.2, 0.7, 2);
+                let pB1 = +(1 - pA1).toFixed(2);
+                let pA2_cible = randFloat(0.25, 0.75, 2);
+                let numerateur = pA2_cible - (pA1 * pA2_sachantA1);
+                let pA2_sachantB1 = Math.min(0.95, Math.max(0.05, numerateur / pB1));
+                pA2_sachantB1 = +pA2_sachantB1.toFixed(3);
+                let pA2_final = +(pA1 * pA2_sachantA1 + pB1 * pA2_sachantB1).toFixed(3);
+                let pA1_sachantA2 = +((pA1 * pA2_sachantA1) / pA2_final).toFixed(4);
+                return { pA1, pB1, pA2_sachantA1, pB2_sachantB1, pA2_sachantB1, pA2_donne: pA2_final, pA1_sachantA2 };
+            })();
+
+            let ex7 = (function() {
+                let n = 4, valeurs = [], probas = new Array(n).fill(0), somme = 0;
+                for(let i=0;i<n;i++) valeurs.push(randInt(-3, 8));
+                let idxManquant = randInt(0, n-1);
+                for(let i=0;i<n;i++) {
+                    if(i !== idxManquant) { let p = randFloat(0.1, 0.5, 2); probas[i] = p; somme += p; }
+                }
+                let pManquante = Math.max(0.05, Math.min(0.8, 1 - somme));
+                probas[idxManquant] = parseFloat(pManquante.toFixed(3));
+                let esperance = 0;
+                for(let i=0;i<n;i++) esperance += valeurs[i] * probas[i];
+                let variance = 0;
+                for(let i=0;i<n;i++) variance += probas[i] * (valeurs[i] - esperance) ** 2;
+                return { valeurs, probas, idxManquant, esperance: parseFloat(esperance.toFixed(3)), ecartType: parseFloat(Math.sqrt(variance).toFixed(4)) };
+            })();
+
+            return { ex1: {a,b}, ex2: {a:a2,b:b2}, ex3: {a:a3,b:b3,c:c3,d:d3}, ex4: {a:a4,b:b4}, ex6, ex7 };
+        }
+
+        async function renderMath(element) {
+            if (window.MathJax) {
+                try { await MathJax.typesetPromise([element]); } 
+                catch(e) { console.warn("MathJax error", e); }
+            }
+        }
+
+        function ajouterEtiquette(conteneur, x, y, texteLatex, offsetX = 0, offsetY = 0, bg = "rgba(255,255,240,0.9)") {
+            const div = document.createElement('div');
+            div.className = 'etiquette';
+            div.style.left = `calc(${(x / 650) * 100}% + ${offsetX}px)`;
+            div.style.top = `calc(${(y / 360) * 100}% + ${offsetY}px)`;
+            div.style.background = bg;
+            div.innerHTML = `$${texteLatex}$`;
+            conteneur.appendChild(div);
+            return div;
+        }
+
+        async function ajouterCarte(root, idEx, titre, enonceHtml, inputsHtml, solutionHtml) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">${titre}</div>
+                <div class="card-body">
+                    <div class="enonce">${enonceHtml}</div>
+                    <div class="student-input-area">${inputsHtml}</div>
+                    <button class="solution-btn" onclick="document.getElementById('sol-${idEx}').classList.toggle('show')">🔍 Afficher/Masquer le corrigé</button>
+                    <div class="solution" id="sol-${idEx}">${solutionHtml}</div>
+                </div>
+            `;
+            root.appendChild(card);
+            await renderMath(card);
+            return card;
+        }
+
+        async function afficherTout() {
+            const root = document.getElementById('exercices-root');
+            root.innerHTML = '';
+            const data = genererDonneesValides();
+
+            // Ex 1
+            let enonce1 = `Soit $f(x) = ${data.ex1.a}x^2 ${data.ex1.b>=0?'+':''} ${data.ex1.b}$ sur $\\mathbb{R}$. Dresser le tableau de variation de $f$ <strong>sans utiliser la dérivation</strong>.`;
+            let input1 = `
+                <div class="field-group">
+                    <label class="field-label">Votre description des variations :</label>
+                    <input type="text" id="ans-ex1" placeholder="Ex: croissante puis décroissante...">
+                    <label class="field-label">Justification (signe de a, coordonnées du sommet) :</label>
+                    <textarea id="justif-ex1" placeholder="Détaillez ici votre raisonnement..."></textarea>
+                </div>
+            `;
+            let sol1 = `Le coefficient dominant $a = ${data.ex1.a}$ est ${data.ex1.a>0 ? 'positif' : 'négatif'}, la parabole est tournée vers le ${data.ex1.a>0 ? 'haut' : 'bas'}.<br>Le sommet est en $x=0$, où la fonction vaut ${data.ex1.b}.<br>La fonction est ${data.ex1.a>0 ? 'décroissante puis croissante (minimum)' : 'croissante puis décroissante (maximum)'}.`;
+            donneesCorrection.ex1 = { attendu: data.ex1.a > 0 ? "décroissante puis croissante" : "croissante puis décroissante" };
+            await ajouterCarte(root, 'ex1', "📈 Exercice 1", enonce1, input1, sol1);
+
+            // Ex 3
+            let {a:a3,b:b3,c:c3,d:d3} = data.ex3;
+            let expr3 = `A = ${a3}\\times\\left(${c3} - \\dfrac{${b3}}{${d3}}\\right) - \\left(${c3} + \\dfrac{${b3}}{${d3}}\\right)^2`;
+            let num3 = a3 * d3 * (c3 * d3 - b3) - (c3 * d3 + b3) ** 2;
+            let den3 = d3 * d3;
+            let frac3 = simplifierFraction(num3, den3);
+            let input3 = `
+                <div class="field-group">
+                    <label class="field-label">Résultat (fraction irréductible) :</label>
+                    <input type="text" id="ans-ex3" placeholder="Ex: -5/4">
+                    <label class="field-label">Justification des calculs (étapes principales) :</label>
+                    <textarea id="justif-ex3" placeholder="Écrivez les étapes intermédiaires..."></textarea>
+                </div>
+            `;
+            let sol3 = `$$A = ${a3}\\left(\\dfrac{${c3*d3 - b3}}{${d3}}\\right) - \\left(\\dfrac{${c3*d3 + b3}}{${d3}}\\right)^2 = \\dfrac{${num3}}{${den3}} = ${frac3}$$`;
+            donneesCorrection.ex3 = { attendu: `${num3}/${den3} simplifié` };
+            await ajouterCarte(root, 'ex3', "🧮 Exercice 2 - Calcul fractionnaire", `$$ ${expr3} $$`, input3, sol3);
+
+            // Ex 6 - Arbre 
+            let ex6 = data.ex6;
+            let enonce6 = `
+                <p>On considère l'arbre probabiliste suivant :</p>
+                <ul>
+                    <li>$P(A_1) = ${ex6.pA1}$</li>
+                    <li>$P_{A_1}(A_2) = ${ex6.pA2_sachantA1}$</li>
+                    <li>$P_{B_1}(B_2) = ${ex6.pB2_sachantB1}$</li>
+                    <li>$P(A_2) = ${ex6.pA2_donne}$ (donnée)</li>
+                </ul>
+                <div class="arbre-wrapper" id="arbre-wrap-ex6"><canvas id="canvas-ex6" width="650" height="360"></canvas></div>
+                <p>Déterminer la probabilité manquante $P_{B_1}(A_2)$ puis en déduire $P_{A_2}(A_1)$.</p>
+            `;
+            let input6 = `
+                <div class="field-group">
+                    <label class="field-label">$P_{B_1}(A_2) =$</label>
+                    <input type="text" id="ans-ex6-1" placeholder="...">
+                    <label class="field-label">Justification (Formule des probabilités totales, etc.) :</label>
+                    <textarea id="justif-ex6-1" placeholder="Justifiez votre calcul..."></textarea>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">$P_{A_2}(A_1) =$</label>
+                    <input type="text" id="ans-ex6-2" placeholder="...">
+                    <label class="field-label">Justification (Probabilité conditionnelle) :</label>
+                    <textarea id="justif-ex6-2" placeholder="Détaillez le calcul de cette probabilité..."></textarea>
+                </div>
+            `;
+            let sol6 = `Par la formule des probabilités totales :<br>
+            $$ P(A_2) = P(A_1)P_{A_1}(A_2) + P(B_1)P_{B_1}(A_2) $$
+            $$ ${ex6.pA2_donne} = ${ex6.pA1} \\times ${ex6.pA2_sachantA1} + (1-${ex6.pA1}) \\times P_{B_1}(A_2) $$
+            $$ P_{B_1}(A_2) = \\dfrac{${ex6.pA2_donne} - ${(ex6.pA1*ex6.pA2_sachantA1).toFixed(4)}}{${(1-ex6.pA1).toFixed(2)}} = ${ex6.pA2_sachantB1} $$<br>
+            Ensuite : $$ P_{A_2}(A_1) = \\dfrac{P(A_1 \\cap A_2)}{P(A_2)} = \\dfrac{${ex6.pA1} \\times ${ex6.pA2_sachantA1}}{${ex6.pA2_donne}} = ${ex6.pA1_sachantA2} $$`;
+            
+            donneesCorrection.ex6 = { pB1_A2: ex6.pA2_sachantB1, pA2_A1: ex6.pA1_sachantA2 };
+            await ajouterCarte(root, 'ex6', "🌳 Exercice 3 – Arbre pondéré", enonce6, input6, sol6);
+
+            // Dessin de l'arbre
+            setTimeout(async () => {
+                const canvas = document.getElementById('canvas-ex6');
+                const wrapper = document.getElementById('arbre-wrap-ex6');
+                if(!canvas || !wrapper) return;
+                const ctx = canvas.getContext('2d');
+                ctx.strokeStyle = "#334155"; ctx.fillStyle = "#0f172a"; ctx.lineWidth = 1.8;
+                
+                const racine = { x: 60, y: 180 }, niv1 = { x: 250, yA: 90, yB: 270 };
+                const niv2 = { x: 480, yAA: 30, yAB: 150, yBA: 210, yBB: 330 };
+                
+                function drawNode(x, y, label) {
+                    ctx.beginPath(); ctx.arc(x, y, 18, 0, 2*Math.PI);
+                    ctx.fillStyle = "#eef2ff"; ctx.fill(); ctx.stroke();
+                    ctx.fillStyle = "#0f172a"; ctx.font = "bold 15px sans-serif";
+                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.fillText(label, x, y+1);
+                }
+                
+                ctx.beginPath(); ctx.moveTo(racine.x, racine.y); ctx.lineTo(niv1.x, niv1.yA); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(racine.x, racine.y); ctx.lineTo(niv1.x, niv1.yB); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(niv1.x, niv1.yA); ctx.lineTo(niv2.x, niv2.yAA); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(niv1.x, niv1.yA); ctx.lineTo(niv2.x, niv2.yAB); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(niv1.x, niv1.yB); ctx.lineTo(niv2.x, niv2.yBA); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(niv1.x, niv1.yB); ctx.lineTo(niv2.x, niv2.yBB); ctx.stroke();
+                
+                drawNode(racine.x, racine.y, "D"); 
+                drawNode(niv1.x, niv1.yA, "A1"); drawNode(niv1.x, niv1.yB, "B1");
+                drawNode(niv2.x, niv2.yAA, "A2"); drawNode(niv2.x, niv2.yAB, "B2");
+                drawNode(niv2.x, niv2.yBA, "A2"); drawNode(niv2.x, niv2.yBB, "B2");
+                
+                ajouterEtiquette(wrapper, (racine.x+niv1.x)/2, (racine.y+niv1.yA)/2, `P(A_1)=${ex6.pA1}`, 0, -22);
+                ajouterEtiquette(wrapper, (racine.x+niv1.x)/2, (racine.y+niv1.yB)/2, `P(B_1)=${ex6.pB1}`, 0, 22);
+                ajouterEtiquette(wrapper, (niv1.x+niv2.x)/2, (niv1.yA+niv2.yAA)/2, `P_{A_1}(A_2)=${ex6.pA2_sachantA1}`, 0, -22);
+                ajouterEtiquette(wrapper, (niv1.x+niv2.x)/2, (niv1.yA+niv2.yAB)/2, `P_{A_1}(B_2)=${(1-ex6.pA2_sachantA1).toFixed(2)}`, 0, 22);
+                ajouterEtiquette(wrapper, (niv1.x+niv2.x)/2, (niv1.yB+niv2.yBA)/2, `? = P_{B_1}(A_2)`, 0, -22, "#fff0e0");
+                ajouterEtiquette(wrapper, (niv1.x+niv2.x)/2, (niv1.yB+niv2.yBB)/2, `P_{B_1}(B_2)=${ex6.pB2_sachantB1}`, 0, 22);
+                
+                await renderMath(wrapper);
+            }, 100);
+
+            // Ex 7
+            let ex7 = data.ex7;
+            let rows = `<thead><tr><th>$x_i$</th>${ex7.valeurs.map(v => `<th>${v}</th>`).join('')}</tr></thead><tbody>
+            <tr><td>$P(X=x_i)$</td>${ex7.probas.map((p,i) => `<td>${i===ex7.idxManquant ? "$?$" : p}</td>`).join('')}</tr></tbody>`;
+            let enonce7 = `<p>Tableau de loi de probabilité partielle :</p><table>${rows}</table>`;
+            let input7 = `
+                <div class="field-group">
+                    <label class="field-label">Proba. manquante :</label>
+                    <input type="text" id="ans-ex7-1">
+                    <label class="field-label">Justification de la probabilité :</label>
+                    <textarea id="justif-ex7-1" placeholder="Détaillez le calcul..."></textarea>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">$E(X)$ :</label>
+                    <input type="text" id="ans-ex7-2">
+                    <label class="field-label">Détail du calcul de $E(X)$ :</label>
+                    <textarea id="justif-ex7-2" placeholder="Écrivez le calcul de l'espérance..."></textarea>
+                </div>
+            `;
+            let sol7 = `La somme des probabilités vaut 1. Probabilité manquante = $1 - ${ (1-ex7.probas[ex7.idxManquant]).toFixed(3) } = ${ex7.probas[ex7.idxManquant]}$.<br>
+            $E(X) = ${ex7.valeurs.map((v,i)=> `${v}\\times ${ex7.probas[i]}`).join(' + ')} = ${ex7.esperance}$.`;
+            donneesCorrection.ex7 = { probaManquante: ex7.probas[ex7.idxManquant], esperance: ex7.esperance };
+            await ajouterCarte(root, 'ex7', "🎲 Exercice 4 – Loi de probabilité", enonce7, input7, sol7);
+        }
+
+        window.exporterJSON = function() {
+            // Récupération des réponses de l'élève
+            const reponsesEleve = {
+                ex1: {
+                    reponse: document.getElementById('ans-ex1') ? document.getElementById('ans-ex1').value : "",
+                    justification: document.getElementById('justif-ex1') ? document.getElementById('justif-ex1').value : ""
+                },
+                ex3: {
+                    reponse: document.getElementById('ans-ex3') ? document.getElementById('ans-ex3').value : "",
+                    justification: document.getElementById('justif-ex3') ? document.getElementById('justif-ex3').value : ""
+                },
+                ex6_1: {
+                    reponse: document.getElementById('ans-ex6-1') ? document.getElementById('ans-ex6-1').value : "",
+                    justification: document.getElementById('justif-ex6-1') ? document.getElementById('justif-ex6-1').value : ""
+                },
+                ex6_2: {
+                    reponse: document.getElementById('ans-ex6-2') ? document.getElementById('ans-ex6-2').value : "",
+                    justification: document.getElementById('justif-ex6-2') ? document.getElementById('justif-ex6-2').value : ""
+                },
+                ex7_1: {
+                    reponse: document.getElementById('ans-ex7-1') ? document.getElementById('ans-ex7-1').value : "",
+                    justification: document.getElementById('justif-ex7-1') ? document.getElementById('justif-ex7-1').value : ""
+                },
+                ex7_2: {
+                    reponse: document.getElementById('ans-ex7-2') ? document.getElementById('ans-ex7-2').value : "",
+                    justification: document.getElementById('justif-ex7-2') ? document.getElementById('justif-ex7-2').value : ""
+                }
+            };
+
+            const erreurs = {};
+            if(reponsesEleve.ex6_1.reponse.replace(',','.') !== String(donneesCorrection.ex6.pB1_A2)) erreurs.ex6_1 = "Erreur sur P_B1(A2)";
+            if(reponsesEleve.ex6_2.reponse.replace(',','.') !== String(donneesCorrection.ex6.pA2_A1)) erreurs.ex6_2 = "Erreur sur P_A2(A1)";
+            if(reponsesEleve.ex7_1.reponse.replace(',','.') !== String(donneesCorrection.ex7.probaManquante)) erreurs.ex7_1 = "Erreur sur probabilité manquante";
+            if(reponsesEleve.ex7_2.reponse.replace(',','.') !== String(donneesCorrection.ex7.esperance)) erreurs.ex7_2 = "Erreur sur E(X)";
+
+            const finalJSON = {
+                date: new Date().toISOString(),
+                reponses: reponsesEleve,
+                attendus_theoriques: donneesCorrection,
+                erreurs_detectees: erreurs
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalJSON, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "reponses_eleve.json");
+            dlAnchorElem.click();
+        };
+
+        document.addEventListener('DOMContentLoaded', () => afficherTout().catch(console.warn));
+    })();
+</script>
+</body>
+</html>
