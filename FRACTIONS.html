@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices de Fractions - Mathématiques Interactives</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .exercise-type {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin: 6px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: #f8f9fa;
+        }
+
+        .exercise-type:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .exercise-type.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .exercise-type .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 0.9em;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .exercise-type.active .icon {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .exercise-type .label {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.6);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .exercise-display {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+        }
+
+        .exercise-display .mjx-chtml {
+            font-size: 1.5em !important;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .fraction-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .fraction-input label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .fraction-input input {
+            width: 80px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .fraction-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .fraction-input .fraction-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .fraction-box .line {
+            width: 60px;
+            height: 2px;
+            background: #333;
+            border-radius: 1px;
+        }
+
+        .result-message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+            font-size: 1.1em;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .result-wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .visualization {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .visualization canvas {
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: white;
+            max-width: 100%;
+        }
+
+        .steps-section {
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+        }
+
+        .steps-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .step {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 1.1em;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.active, .difficulty-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+        }
+
+        .progress-ring circle {
+            transition: stroke-dashoffset 0.5s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .history-wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .history-section {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #667eea;
+            font-family: monospace;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 8px 20px;
+            border: 2px solid #764ba2;
+            background: white;
+            color: #764ba2;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active, .mode-btn:hover {
+            background: #764ba2;
+            color: white;
+        }
+
+        /* Styles pour le bouton et la modale de droits d'auteur */
+        .btn-copyright {
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px dashed #bbb;
+            color: #555;
+            border-radius: 10px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .btn-copyright:hover {
+            background: #e9ecef;
+            color: #333;
+            border-color: #667eea;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #764ba2;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .modal-body {
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: #444;
+        }
+
+        .modal-body p {
+            margin-bottom: 10px;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+
+        .modal-footer {
+            text-align: right;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-close-modal {
+            background: #764ba2;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-close-modal:hover {
+            background: #667eea;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧮 Exercices de Fractions</h1>
+            <p>Maîtrisez les fractions avec des exercices interactifs et des visualisations</p>
+        </header>
+
+        <div class="main-grid">
+            <aside class="sidebar">
+                <h2>📚 Types d'exercices</h2>
+
+                <div class="exercise-type active" data-type="reduce">
+                    <div class="icon">R</div>
+                    <div class="label">Réduction irréductible</div>
+                </div>
+
+                <div class="exercise-type" data-type="add_num_frac">
+                    <div class="icon">+</div>
+                    <div class="label">Nombre + Fraction</div>
+                </div>
+
+                <div class="exercise-type" data-type="sub_num_frac">
+                    <div class="icon">−</div>
+                    <div class="label">Nombre − Fraction</div>
+                </div>
+
+                <div class="exercise-type" data-type="mul_num_frac">
+                    <div class="icon">×</div>
+                    <div class="label">Nombre × Fraction</div>
+                </div>
+
+                <div class="exercise-type" data-type="div_num_frac">
+                    <div class="icon">÷</div>
+                    <div class="label">Nombre ÷ Fraction</div>
+                </div>
+
+                <div class="exercise-type" data-type="add_frac_num">
+                    <div class="icon">+</div>
+                    <div class="label">Fraction + Nombre</div>
+                </div>
+
+                <div class="exercise-type" data-type="add_frac_frac">
+                    <div class="icon">+</div>
+                    <div class="label">Fraction + Fraction</div>
+                </div>
+
+                <div class="exercise-type" data-type="mul_frac_frac">
+                    <div class="icon">×</div>
+                    <div class="label">Fraction × Fraction</div>
+                </div>
+
+                <div class="exercise-type" data-type="div_frac_frac">
+                    <div class="icon">÷</div>
+                    <div class="label">Fraction ÷ Fraction</div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e9ecef;">
+                    <h2>📊 Statistiques</h2>
+                    <div class="stats-bar" style="justify-content: space-between;">
+                        <div class="stat-item">✅ <span id="correct-count">0</span></div>
+                        <div class="stat-item">❌ <span id="wrong-count">0</span></div>
+                        <div class="stat-item">📈 <span id="score-percent">0%</span></div>
+                    </div>
+                    <div class="history-section" id="history"></div>
+                </div>
+
+                <button class="btn-copyright" onclick="toggleModal(true)">⚖️ Droits d'auteur</button>
+            </aside>
+
+            <main class="content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" id="current-title">Réduction en fraction irréductible</div>
+                        <div class="timer" id="timer">00:00</div>
+                    </div>
+
+                    <div class="mode-toggle">
+                        <button class="mode-btn active" data-mode="practice">Mode Pratique</button>
+                        <button class="mode-btn" data-mode="quiz">Mode Quiz (10 questions)</button>
+                    </div>
+
+                    <div class="difficulty-selector">
+                        <button class="difficulty-btn active" data-level="easy">Facile</button>
+                        <button class="difficulty-btn" data-level="medium">Moyen</button>
+                        <button class="difficulty-btn" data-level="hard">Difficile</button>
+                    </div>
+
+                    <div class="exercise-display" id="exercise-display">
+                        Chargement...
+                    </div>
+
+                    <div class="visualization" id="visualization-container">
+                        <canvas id="fracCanvas" width="400" height="200"></canvas>
+                    </div>
+
+                    <div class="input-section">
+                        <div class="fraction-input" id="input-area">
+                            <label>Réponse :</label>
+                            <div class="fraction-box">
+                                <input type="number" id="num-input" placeholder="num">
+                                <div class="line"></div>
+                                <input type="number" id="den-input" placeholder="den">
+                            </div>
+                            <span id="whole-part-container" style="display:none;">
+                                <input type="number" id="whole-input" placeholder="entier" style="width:80px;">
+                            </span>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="checkAnswer()">✓ Vérifier</button>
+                            <button class="btn btn-success" onclick="showSolution()">💡 Solution</button>
+                            <button class="btn btn-warning" onclick="generateExercise()">🔄 Nouveau</button>
+                        </div>
+                    </div>
+
+                    <div class="result-message" id="result-message"></div>
+
+                    <div class="steps-section" id="steps-section">
+                        <h3>📝 Étapes de résolution</h3>
+                        <div id="steps-content"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="copyright-modal" onclick="toggleModal(false)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">⚖️ Droits d'Auteur et Licence d'Utilisation</div>
+            <div class="modal-body">
+                <p><strong>Auteur :</strong> Yann Merdy (<a href="mailto:yann.merdy@gmail.com">yann.merdy@gmail.com</a>) - Avril 2026</p>
+                <p style="margin-top: 12px; font-weight: 600; text-decoration: underline;">Licence d'Utilisation Non Commerciale</p>
+                <p>Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application (<strong>'Exercices de Fractions'</strong>) sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
+                
+                <p style="margin-top: 12px; font-weight: bold;">Conditions :</p>
+                <ul>
+                    <li><strong>Utilisation Privée et Éducative (Autorisée) :</strong> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu uniquement à des fins personnelles, éducatives et non lucratives.</li>
+                    <li><strong>Utilisation Commerciale (Interdite) :</strong> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins commerciales, lucratives ou professionnelles est strictement interdite sans un accord écrit préalable et explicite de l'auteur.</li>
+                    <li><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur d'origine (Yann Merdy) et la présente notice de droits d'auteur.</li>
+                </ul>
+                <p style="font-style: italic; background: #f8f9fa; padding: 10px; border-left: 3px solid #764ba2; border-radius: 4px;">Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close-modal" onclick="toggleModal(false)">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== MATH UTILITIES ====================
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
+        function lcm(a, b) {
+            return Math.abs(a * b) / gcd(a, b);
+        }
+
+        function reduceFraction(num, den) {
+            if (den === 0) return null;
+            const g = gcd(num, den);
+            let n = num / g;
+            let d = den / g;
+            if (d < 0) {
+                n = -n;
+                d = -d;
+            }
+            return { num: n, den: d };
+        }
+
+        function formatFraction(num, den, mixed = false) {
+            if (den === 1) return `${num}`;
+            if (num === 0) return `0`;
+            const r = reduceFraction(num, den);
+            if (mixed && Math.abs(r.num) > r.den) {
+                const whole = Math.floor(Math.abs(r.num) / r.den);
+                const rem = Math.abs(r.num) % r.den;
+                const sign = r.num < 0 ? '-' : '';
+                if (rem === 0) return `${sign}${whole}`;
+                return `${sign}${whole}\\frac{${rem}}{${r.den}}`;
+            }
+            return `\\frac{${r.num}}{${r.den}}`;
+        }
+
+        // ==================== STATE ====================
+        let currentExercise = null;
+        let currentType = 'reduce';
+        let difficulty = 'easy';
+        let mode = 'practice';
+        let stats = { correct: 0, wrong: 0, total: 0 };
+        let quizProgress = { current: 0, total: 10, questions: [] };
+        let timerInterval = null;
+        let seconds = 0;
+
+        // ==================== GENERATORS ====================
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getDifficultyParams() {
+            switch(difficulty) {
+                case 'easy': return { maxNum: 10, maxDen: 10 };
+                case 'medium': return { maxNum: 20, maxDen: 20 };
+                case 'hard': return { maxNum: 50, maxDen: 50 };
+                default: return { maxNum: 10, maxDen: 10 };
+            }
+        }
+
+        function generateReduceExercise() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            let num = randInt(2, maxNum);
+            let den = randInt(2, maxDen);
+            const g = gcd(num, den);
+            if (g === 1) {
+                num *= randInt(2, 4);
+                den *= randInt(2, 4);
+            }
+            const reduced = reduceFraction(num, den);
+            return {
+                type: 'reduce',
+                display: `\\text{Simplifiez : } \\frac{${num}}{${den}}`,
+                answer: reduced,
+                steps: [
+                    `\\text{PGCD}(${num}, ${den}) = ${g}`,
+                    `\\frac{${num} \\div ${g}}{${den} \\div ${g}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num, den }
+            };
+        }
+
+        function generateAddNumFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num = randInt(1, maxNum);
+            const den = randInt(2, maxDen);
+            const whole = randInt(1, maxNum);
+            const resultNum = whole * den + num;
+            const reduced = reduceFraction(resultNum, den);
+            return {
+                type: 'add_num_frac',
+                display: `\\text{Calculez : } ${whole} + \\frac{${num}}{${den}}`,
+                answer: reduced,
+                steps: [
+                    `${whole} = \\frac{${whole} \\times ${den}}{${den}} = \\frac{${whole * den}}{${den}}`,
+                    `\\frac{${whole * den}}{${den}} + \\frac{${num}}{${den}} = \\frac{${whole * den} + ${num}}{${den}} = \\frac{${resultNum}}{${den}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${den}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num1: whole, num2: num, den2: den }
+            };
+        }
+
+        function generateSubNumFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num = randInt(1, maxNum);
+            const den = randInt(2, maxDen);
+            const whole = randInt(num + 1, maxNum + num);
+            const resultNum = whole * den - num;
+            const reduced = reduceFraction(resultNum, den);
+            return {
+                type: 'sub_num_frac',
+                display: `\\text{Calculez : } ${whole} - \\frac{${num}}{${den}}`,
+                answer: reduced,
+                steps: [
+                    `${whole} = \\frac{${whole} \\times ${den}}{${den}} = \\frac{${whole * den}}{${den}}`,
+                    `\\frac{${whole * den}}{${den}} - \\frac{${num}}{${den}} = \\frac{${whole * den} - ${num}}{${den}} = \\frac{${resultNum}}{${den}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${den}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num1: whole, num2: num, den2: den }
+            };
+        }
+
+        function generateMulNumFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num = randInt(1, maxNum);
+            const den = randInt(2, maxDen);
+            const whole = randInt(2, maxNum);
+            const resultNum = whole * num;
+            const SidebarReduced = reduceFraction(resultNum, den);
+            return {
+                type: 'mul_num_frac',
+                display: `\\text{Calculez : } ${whole} \\times \\frac{${num}}{${den}}`,
+                answer: SidebarReduced,
+                steps: [
+                    `${whole} \\times \\frac{${num}}{${den}} = \\frac{${whole} \\times ${num}}{${den}} = \\frac{${resultNum}}{${den}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${den}} = \\frac{${SidebarReduced.num}}{${SidebarReduced.den}}`
+                ],
+                original: { num1: whole, num2: num, den2: den }
+            };
+        }
+
+        function generateDivNumFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num = randInt(1, maxNum);
+            const den = randInt(2, maxDen);
+            const whole = randInt(1, maxNum);
+            const resultNum = whole * den;
+            const resultDen = num;
+            const SidebarReduced = reduceFraction(resultNum, resultDen);
+            return {
+                type: 'div_num_frac',
+                display: `\\text{Calculez : } ${whole} \\div \\frac{${num}}{${den}}`,
+                answer: SidebarReduced,
+                steps: [
+                    `${whole} \\div \\frac{${num}}{${den}} = ${whole} \\times \\frac{${den}}{${num}}`,
+                    `= \\frac{${whole} \\times ${den}}{${num}} = \\frac{${resultNum}}{${resultDen}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${resultDen}} = \\frac{${SidebarReduced.num}}{${SidebarReduced.den}}`
+                ],
+                original: { num1: whole, num2: num, den2: den }
+            };
+        }
+
+        function generateAddFracNum() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num = randInt(1, maxNum);
+            const den = randInt(2, maxDen);
+            const whole = randInt(1, maxNum);
+            const resultNum = num + whole * den;
+            const reduced = reduceFraction(resultNum, den);
+            return {
+                type: 'add_frac_num',
+                display: `\\text{Calculez : } \\frac{${num}}{${den}} + ${whole}`,
+                answer: reduced,
+                steps: [
+                    `${whole} = \\frac{${whole * den}}{${den}}`,
+                    `\\frac{${num}}{${den}} + \\frac{${whole * den}}{${den}} = \\frac{${num} + ${whole * den}}{${den}} = \\frac{${resultNum}}{${den}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${den}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num1: num, den1: den, num2: whole }
+            };
+        }
+
+        function generateAddFracFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const den1 = randInt(2, maxDen);
+            const den2 = randInt(2, maxDen);
+            const num1 = randInt(1, maxNum);
+            const num2 = randInt(1, maxNum);
+            const commonDen = lcm(den1, den2);
+            const newNum1 = num1 * (commonDen / den1);
+            const newNum2 = num2 * (commonDen / den2);
+            const resultNum = newNum1 + newNum2;
+            const reduced = reduceFraction(resultNum, commonDen);
+            return {
+                type: 'add_frac_frac',
+                display: `\\text{Calculez : } \\frac{${num1}}{${den1}} + \\frac{${num2}}{${den2}}`,
+                answer: reduced,
+                steps: [
+                    `\\text{PPCM}(${den1}, ${den2}) = ${commonDen}`,
+                    `\\frac{${num1}}{${den1}} = \\frac{${num1} \\times ${commonDen/den1}}{${den1} \\times ${commonDen/den1}} = \\frac{${newNum1}}{${commonDen}}`,
+                    `\\frac{${num2}}{${den2}} = \\frac{${num2} \\times ${commonDen/den2}}{${den2} \\times ${commonDen/den2}} = \\frac{${newNum2}}{${commonDen}}`,
+                    `\\frac{${newNum1}}{${commonDen}} + \\frac{${newNum2}}{${commonDen}} = \\frac{${newNum1} + ${newNum2}}{${commonDen}} = \\frac{${resultNum}}{${commonDen}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${commonDen}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num1, den1, num2, den2 }
+            };
+        }
+
+        function generateMulFracFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num1 = randInt(1, maxNum);
+            const den1 = randInt(2, maxDen);
+            const num2 = randInt(1, maxNum);
+            const den2 = randInt(2, maxDen);
+            const resultNum = num1 * num2;
+            const resultDen = den1 * den2;
+            const reduced = reduceFraction(resultNum, resultDen);
+            return {
+                type: 'mul_frac_frac',
+                display: `\\text{Calculez : } \\frac{${num1}}{${den1}} \\times \\frac{${num2}}{${den2}}`,
+                answer: reduced,
+                steps: [
+                    `\\frac{${num1}}{${den1}} \\times \\frac{${num2}}{${den2}} = \\frac{${num1} \\times ${num2}}{${den1} \\times ${den2}} = \\frac{${resultNum}}{${resultDen}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${resultDen}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num1, den1, num2, den2 }
+            };
+        }
+
+        // ==================== COUPLAGE D'OUTILS ET FENÊTRE MODALE ====================
+        function toggleModal(show) {
+            const modal = document.getElementById('copyright-modal');
+            if (show) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        function generateDivFracFrac() {
+            const { maxNum, maxDen } = getDifficultyParams();
+            const num1 = randInt(1, maxNum);
+            const den1 = randInt(2, maxDen);
+            const num2 = randInt(1, maxNum);
+            const den2 = randInt(2, maxDen);
+            const resultNum = num1 * den2;
+            const resultDen = den1 * num2;
+            const reduced = reduceFraction(resultNum, resultDen);
+            return {
+                type: 'div_frac_frac',
+                display: `\\text{Calculez : } \\frac{${num1}}{${den1}} \\div \\frac{${num2}}{${den2}}`,
+                answer: reduced,
+                steps: [
+                    `\\frac{${num1}}{${den1}} \\div \\frac{${num2}}{${den2}} = \\frac{${num1}}{${den1}} \\times \\frac{${den2}}{${num2}}`,
+                    `= \\frac{${num1} \\times ${den2}}{${den1} \\times ${num2}} = \\frac{${resultNum}}{${resultDen}}`,
+                    `\\text{Réduction : } \\frac{${resultNum}}{${resultDen}} = \\frac{${reduced.num}}{${reduced.den}}`
+                ],
+                original: { num1, den1, num2, den2 }
+            };
+        }
+
+        function generateExerciseByType(type) {
+            switch(type) {
+                case 'reduce': return generateReduceExercise();
+                case 'add_num_frac': return generateAddNumFrac();
+                case 'sub_num_frac': return generateSubNumFrac();
+                case 'mul_num_frac': return generateMulNumFrac();
+                case 'div_num_frac': return generateDivNumFrac();
+                case 'add_frac_num': return generateAddFracNum();
+                case 'add_frac_frac': return generateAddFracFrac();
+                case 'mul_frac_frac': return generateMulFracFrac();
+                case 'div_frac_frac': return generateDivFracFrac();
+                default: return generateReduceExercise();
+            }
+        }
+
+        // ==================== CANVAS VISUALIZATION ====================
+        function drawFractionVisualization() {
+            const canvas = document.getElementById('fracCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!currentExercise || !currentExercise.original) return;
+
+            const type = currentExercise.type;
+            const orig = currentExercise.original;
+
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (type === 'reduce') {
+                drawFractionBar(ctx, 50, 50, 300, 40, orig.num, orig.den, '#667eea', '#764ba2');
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Segoe UI';
+                ctx.fillText(`Fraction originale : ${orig.num}/${orig.den}`, 50, 120);
+                const r = currentExercise.answer;
+                ctx.fillText(`Irréductible : ${r.num}/${r.den}`, 50, 145);
+            } else if (type === 'add_num_frac' || type === 'sub_num_frac') {
+                const whole = orig.num1;
+                const num = orig.num2;
+                const den = orig.den2;
+                drawFractionBar(ctx, 30, 30, 120, 35, whole, 1, '#11998e', '#38ef7d');
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 20px Segoe UI';
+                ctx.fillText(type === 'add_num_frac' ? '+' : '−', 165, 55);
+                drawFractionBar(ctx, 190, 30, 120, 35, num, den, '#f093fb', '#f5576c');
+            } else if (type === 'mul_num_frac') {
+                const whole = orig.num1;
+                const num = orig.num2;
+                const den = orig.den2;
+                drawFractionBar(ctx, 30, 30, 120, 35, whole, 1, '#667eea', '#764ba2');
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 20px Segoe UI';
+                ctx.fillText('×', 165, 55);
+                drawFractionBar(ctx, 190, 30, 120, 35, num, den, '#f093fb', '#f5576c');
+            } else if (type === 'add_frac_frac' || type === 'div_frac_frac' || type === 'mul_frac_frac') {
+                drawFractionBar(ctx, 30, 30, 120, 35, orig.num1, orig.den1, '#667eea', '#764ba2');
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 20px Segoe UI';
+                let op = '+';
+                if (type === 'mul_frac_frac') op = '×';
+                if (type === 'div_frac_frac') op = '÷';
+                ctx.fillText(op, 165, 55);
+                drawFractionBar(ctx, 190, 30, 120, 35, orig.num2, orig.den2, '#f093fb', '#f5576c');
+            }
+        }
+
+        function drawFractionBar(ctx, x, y, width, height, num, den, color1, color2) {
+            const barWidth = width;
+            const barHeight = height;
+
+            if (den === 1) {
+                ctx.fillStyle = color1;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, barWidth, barHeight);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${num}`, x + barWidth/2, y + barHeight/2 + 5);
+                ctx.textAlign = 'left';
+                return;
+            }
+
+            const segmentWidth = barWidth / den;
+            for (let i = 0; i < den; i++) {
+                ctx.fillStyle = i < num ? color1 : '#e9ecef';
+                ctx.fillRect(x + i * segmentWidth, y, segmentWidth - 2, barHeight);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x + i * segmentWidth, y, segmentWidth - 2, barHeight);
+            }
+
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 12px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${num}/${den}`, x + barWidth/2, y + barHeight + 18);
+            ctx.textAlign = 'left';
+        }
+
+        // ==================== UI FUNCTIONS ====================
+        function generateExercise() {
+            currentExercise = generateExerciseByType(currentType);
+            const targetEl = document.getElementById('exercise-display');
+            targetEl.innerHTML = `$$${currentExercise.display}$$`;
+            document.getElementById('result-message').style.display = 'none';
+            document.getElementById('steps-section').style.display = 'none';
+            document.getElementById('num-input').value = '';
+            document.getElementById('den-input').value = '';
+            document.getElementById('whole-input').value = '';
+
+            if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+                MathJax.typesetPromise([targetEl]).catch((err) => console.log(err));
+            }
+
+            drawFractionVisualization();
+            resetTimer();
+            startTimer();
+        }
+
+        function checkAnswer() {
+            if (!currentExercise) return;
+
+            const userNum = parseInt(document.getElementById('num-input').value);
+            const userDen = parseInt(document.getElementById('den-input').value);
+
+            if (isNaN(userNum) || isNaN(userDen) || userDen === 0) {
+                showResult('Veuillez entrer un numérateur et un dénominateur valides.', false);
+                return;
+            }
+
+            const userReduced = reduceFraction(userNum, userDen);
+            const correct = currentExercise.answer;
+
+            const isCorrect = (userReduced.num === correct.num && userReduced.den === correct.den);
+
+            if (isCorrect) {
+                stats.correct++;
+                showResult(`Bravo ! La réponse $$${formatFraction(userNum, userDen)}$$ est correcte.`, true);
+                addHistory(userNum, userDen, true);
+            } else {
+                stats.wrong++;
+                showResult(`Incorrect. Vous avez répondu $$${formatFraction(userNum, userDen)}$$. La bonne réponse était $$${formatFraction(correct.num, correct.den)}$$.`, false);
+                addHistory(userNum, userDen, false);
+            }
+
+            stats.total++;
+            updateStats();
+            stopTimer();
+
+            if (mode === 'quiz') {
+                quizProgress.current++;
+                if (quizProgress.current >= quizProgress.total) {
+                    setTimeout(() => {
+                        alert(`Quiz terminé ! Score : ${stats.correct}/${stats.total}`);
+                        resetQuiz();
+                    }, 500);
+                }
+            }
+        }
+
+        function showResult(message, isCorrect) {
+            const el = document.getElementById('result-message');
+            el.innerHTML = (isCorrect ? '✅ ' : '❌ ') + message;
+            el.className = 'result-message ' + (isCorrect ? 'result-correct' : 'result-wrong');
+            el.style.display = 'block';
+
+            if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+                MathJax.typesetPromise([el]).catch((err) => console.log(err));
+            }
+        }
+
+        function showSolution() {
+            if (!currentExercise) return;
+            const stepsSection = document.getElementById('steps-section');
+            const stepsContent = document.getElementById('steps-content');
+
+            let html = '';
+            currentExercise.steps.forEach((step, i) => {
+                html += `<div class="step">Étape ${i+1} : $$${step}$$</div>`;
+            });
+
+            const ans = currentExercise.answer;
+            html += `<div class="step" style="color:#667eea; font-weight:bold;">Réponse finale : $$${formatFraction(ans.num, ans.den)}$$</div>`;
+
+            stepsContent.innerHTML = html;
+            stepsSection.style.display = 'block';
+
+            if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+                MathJax.typesetPromise([stepsContent]).catch((err) => console.log(err));
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('correct-count').textContent = stats.correct;
+            document.getElementById('wrong-count').textContent = stats.wrong;
+            const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('score-percent').textContent = percent + '%';
+        }
+
+        function addHistory(num, den, isCorrect) {
+            const history = document.getElementById('history');
+            const item = document.createElement('div');
+            item.className = 'history-item ' + (isCorrect ? 'history-correct' : 'history-wrong');
+            
+            let typeLabel = document.getElementById('current-title').textContent.split(':')[0];
+            item.innerHTML = `<span>${typeLabel} (${num}/${den})</span><span>${isCorrect ? '✅' : '❌'}</span>`;
+            
+            history.insertBefore(item, history.firstChild);
+            if (history.children.length > 10) {
+                history.removeChild(history.lastChild);
+            }
+        }
+
+        // ==================== TIMER ====================
+        function startTimer() {
+            stopTimer();
+            seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            seconds = 0;
+            document.getElementById('timer').textContent = '00:00';
+        }
+
+        function resetQuiz() {
+            quizProgress.current = 0;
+            stats = { correct: 0, wrong: 0, total: 0 };
+            updateStats();
+            document.getElementById('history').innerHTML = '';
+            generateExercise();
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.querySelectorAll('.exercise-type').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.exercise-type').forEach(e => e.classList.remove('active'));
+                el.classList.add('active');
+                currentType = el.dataset.type;
+
+                const titles = {
+                    'reduce': 'Réduction en fraction irréductible',
+                    'add_num_frac': 'Addition : Nombre + Fraction',
+                    'sub_num_frac': 'Soustraction : Nombre − Fraction',
+                    'mul_num_frac': 'Multiplication : Nombre × Fraction',
+                    'div_num_frac': 'Division : Nombre ÷ Fraction',
+                    'add_frac_num': 'Addition : Fraction + Nombre',
+                    'add_frac_frac': 'Addition : Fraction + Fraction',
+                    'mul_frac_frac': 'Multiplication : Fraction × Fraction',
+                    'div_frac_frac': 'Division : Fraction ÷ Fraction'
+                };
+                document.getElementById('current-title').textContent = titles[currentType];
+                generateExercise();
+            });
+        });
+
+        document.querySelectorAll('.difficulty-btn').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.difficulty-btn').forEach(e => e.classList.remove('active'));
+                el.classList.add('active');
+                difficulty = el.dataset.level;
+                generateExercise();
+            });
+        });
+
+        document.querySelectorAll('.mode-btn').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(e => e.classList.remove('active'));
+                el.classList.add('active');
+                mode = el.dataset.mode;
+                if (mode === 'quiz') {
+                    resetQuiz();
+                }
+            });
+        });
+
+        document.getElementById('num-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+        document.getElementById('den-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        // Fermer la modale si on appuie sur Échap
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleModal(false);
+        });
+
+        // ==================== INIT ====================
+        window.addEventListener('load', () => {
+            generateExercise();
+        });
+    </script>
+</body>
+</html>
