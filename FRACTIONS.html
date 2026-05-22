@@ -491,7 +491,7 @@
             background: white;
             padding: 25px;
             border-radius: 16px;
-            max-width: 550px;
+            max-width: 650px;
             width: 90%;
             box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             transform: translateY(-20px);
@@ -552,6 +552,20 @@
 
         .btn-close-modal:hover {
             background: #667eea;
+        }
+
+        /* Styles spécifiques pour le cours */
+        .lesson-section {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .lesson-section h4 {
+            color: #764ba2;
+            margin-bottom: 5px;
+            font-size: 1.1em;
         }
     </style>
 <base target="_blank">
@@ -622,7 +636,7 @@
                     <div class="history-section" id="history"></div>
                 </div>
 
-                <button class="btn-copyright" onclick="toggleModal(true)">⚖️ Droits d'auteur</button>
+                <button class="btn-copyright" onclick="toggleModal('copyright-modal', true)">⚖️ Droits d'auteur</button>
             </aside>
 
             <main class="content-area">
@@ -682,7 +696,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="copyright-modal" onclick="toggleModal(false)">
+    <div class="modal-overlay" id="copyright-modal" onclick="toggleModal('copyright-modal', false)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">⚖️ Droits d'Auteur et Licence d'Utilisation</div>
             <div class="modal-body">
@@ -699,7 +713,49 @@
                 <p style="font-style: italic; background: #f8f9fa; padding: 10px; border-left: 3px solid #764ba2; border-radius: 4px;">Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
             </div>
             <div class="modal-footer">
-                <button class="btn-close-modal" onclick="toggleModal(false)">Fermer</button>
+                <button class="btn-close-modal" onclick="toggleModal('copyright-modal', false)">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="course-modal" onclick="toggleModal('course-modal', false)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">📖 Cours : Calculs avec les Fractions</div>
+            <div class="modal-body" id="course-content">
+                <p>Voici un rappel des règles essentielles pour manipuler et calculer avec des fractions.</p>
+                
+                <div class="lesson-section">
+                    <h4>1. Simplification de fraction</h4>
+                    <p>Pour simplifier une fraction, on divise son numérateur et son dénominateur par un même diviseur commun (idéalement leur PGCD) :</p>
+                    <p>$$\frac{a \times k}{b \times k} = \frac{a}{b}$$</p>
+                    <p><em>Exemple :</em> $$\frac{12}{18} = \frac{2 \times 6}{3 \times 6} = \frac{2}{3}$$</p>
+                </div>
+
+                <div class="lesson-section">
+                    <h4>2. Addition et Soustraction</h4>
+                    <p>Pour additionner ou soustraire deux fractions, elles doivent impérativement avoir le <strong>même dénominateur</strong>. Si ce n'est pas le cas, on cherche un dénominateur commun (généralement le PPCM) :</p>
+                    <p>$$\frac{a}{d} + \frac{b}{d} = \frac{a+b}{d}$$</p>
+                    <p><em>Exemple :</em> $$\frac{2}{3} + \frac{1}{4} = \frac{2 \times 4}{3 \times 4} + \frac{1 \times 3}{4 \times 3} = \frac{8}{12} + \frac{3}{12} = \frac{11}{12}$$</p>
+                    <p>Pour un calcul avec un nombre entier, on se rappelle que $$9 = \frac{9}{1}$$ :</p>
+                    <p><em>Exemple :</em> $$2 + \frac{3}{5} = \frac{2 \times 5}{1 \times 5} + \frac{3}{5} = \frac{10}{5} + \frac{3}{5} = \frac{13}{5}$$</p>
+                </div>
+
+                <div class="lesson-section">
+                    <h4>3. Multiplication</h4>
+                    <p>Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux. <strong>Il n'est pas nécessaire de mettre au même dénominateur !</strong></p>
+                    <p>$$\frac{a}{b} \times \frac{c}{d} = \frac{a \times c}{b \times d}$$</p>
+                    <p><em>Exemple :</em> $$\frac{2}{3} \times \frac{5}{7} = \frac{2 \times 5}{3 \times 7} = \frac{10}{21}$$</p>
+                </div>
+
+                <div class="lesson-section">
+                    <h4>4. Division</h4>
+                    <p>Diviser par une fraction revient à multiplier par son <strong>inverse</strong>. L'inverse de $$\frac{c}{d}$$ est $$\frac{d}{c}$$ :</p>
+                    <p>$$\frac{a}{b} \div \frac{c}{d} = \frac{a}{b} \times \frac{d}{c} = \frac{a \times d}{b \times c}$$</p>
+                    <p><em>Exemple :</em> $$\frac{3}{4} \div \frac{2}{5} = \frac{3}{4} \times \frac{5}{2} = \frac{3 \times 5}{4 \times 2} = \frac{15}{8}$$</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close-modal" onclick="toggleModal('course-modal', false)">Fermer et Pratiquer</button>
             </div>
         </div>
     </div>
@@ -879,15 +935,15 @@
             const den = randInt(2, maxDen);
             const whole = randInt(1, maxNum);
             const resultNum = num + whole * den;
-            const reduced = reduceFraction(resultNum, den);
+            const SidebarReduced = reduceFraction(resultNum, den);
             return {
                 type: 'add_frac_num',
                 display: `\\text{Calculez : } \\frac{${num}}{${den}} + ${whole}`,
-                answer: reduced,
+                answer: SidebarReduced,
                 steps: [
                     `${whole} = \\frac{${whole * den}}{${den}}`,
                     `\\frac{${num}}{${den}} + \\frac{${whole * den}}{${den}} = \\frac{${num} + ${whole * den}}{${den}} = \\frac{${resultNum}}{${den}}`,
-                    `\\text{Réduction : } \\frac{${resultNum}}{${den}} = \\frac{${reduced.num}}{${reduced.den}}`
+                    `\\text{Réduction : } \\frac{${resultNum}}{${den}} = \\frac{${SidebarReduced.num}}{${SidebarReduced.den}}`
                 ],
                 original: { num1: num, den1: den, num2: whole }
             };
@@ -940,11 +996,14 @@
             };
         }
 
-        // ==================== COUPLAGE D'OUTILS ET FENÊTRE MODALE ====================
-        function toggleModal(show) {
-            const modal = document.getElementById('copyright-modal');
+        // ==================== GESTION DES MODALES ====================
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
             if (show) {
                 modal.classList.add('active');
+                if (modalId === 'course-modal' && window.MathJax && typeof MathJax.typesetPromise === 'function') {
+                    MathJax.typesetPromise([document.getElementById('course-content')]).catch((err) => console.log(err));
+                }
             } else {
                 modal.classList.remove('active');
             }
@@ -1026,15 +1085,19 @@
                 ctx.font = 'bold 20px Segoe UI';
                 ctx.fillText('×', 165, 55);
                 drawFractionBar(ctx, 190, 30, 120, 35, num, den, '#f093fb', '#f5576c');
-            } else if (type === 'add_frac_frac' || type === 'div_frac_frac' || type === 'mul_frac_frac') {
-                drawFractionBar(ctx, 30, 30, 120, 35, orig.num1, orig.den1, '#667eea', '#764ba2');
+            } else if (type === 'add_frac_frac' || type === 'div_frac_frac' || type === 'mul_frac_frac' || type === 'add_frac_num') {
+                const n1 = orig.num1;
+                const d1 = orig.den1 || 1;
+                const n2 = orig.num2;
+                const d2 = orig.den2 || 1;
+                drawFractionBar(ctx, 30, 30, 120, 35, n1, d1, '#667eea', '#764ba2');
                 ctx.fillStyle = '#333';
                 ctx.font = 'bold 20px Segoe UI';
                 let op = '+';
                 if (type === 'mul_frac_frac') op = '×';
                 if (type === 'div_frac_frac') op = '÷';
                 ctx.fillText(op, 165, 55);
-                drawFractionBar(ctx, 190, 30, 120, 35, orig.num2, orig.den2, '#f093fb', '#f5576c');
+                drawFractionBar(ctx, 190, 30, 120, 35, n2, d2, '#f093fb', '#f5576c');
             }
         }
 
@@ -1050,6 +1113,7 @@
                 ctx.strokeRect(x, y, barWidth, barHeight);
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 14px Segoe UI';
+                ctx.shadowColor = 'transparent';
                 ctx.textAlign = 'center';
                 ctx.fillText(`${num}`, x + barWidth/2, y + barHeight/2 + 5);
                 ctx.textAlign = 'left';
@@ -1258,6 +1322,8 @@
                 mode = el.dataset.mode;
                 if (mode === 'quiz') {
                     resetQuiz();
+                } else if (mode === 'practice') {
+                    toggleModal('course-modal', true);
                 }
             });
         });
@@ -1269,9 +1335,12 @@
             if (e.key === 'Enter') checkAnswer();
         });
 
-        // Fermer la modale si on appuie sur Échap
+        // Fermer les modales si on appuie sur Échap
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') toggleModal(false);
+            if (e.key === 'Escape') {
+                toggleModal('copyright-modal', false);
+                toggleModal('course-modal', false);
+            }
         });
 
         // ==================== INIT ====================
